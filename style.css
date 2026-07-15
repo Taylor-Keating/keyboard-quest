@@ -4,27 +4,24 @@
   background: #dff5ff;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-body {
-  display: grid;
-  min-height: 100vh;
-  margin: 0;
-  place-items: center;
-  padding: 24px;
-}
+body { min-height: 100vh; margin: 0; padding: 24px; }
 
-.lesson-card {
-  width: min(100%, 680px);
+.app-shell { width: min(100%, 680px); margin: 0 auto; }
+.app-header { padding: 12px 12px 24px; text-align: center; }
+
+.lesson-card,
+.journey {
   border: 4px solid #172033;
   border-radius: 24px;
   background: white;
   box-shadow: 8px 8px 0 #172033;
   padding: 36px;
-  text-align: center;
 }
+
+.journey { margin-bottom: 32px; background: #fff8d8; }
+.lesson-card { text-align: center; }
 
 .eyebrow {
   color: #4b3aa8;
@@ -33,22 +30,50 @@ body {
   text-transform: uppercase;
 }
 
-h1 {
-  font-size: clamp(2rem, 7vw, 3.5rem);
-  margin: 12px 0;
+h1 { font-size: clamp(2rem, 7vw, 3.5rem); margin: 12px 0; }
+h2, h3 { margin-top: 0; }
+.instructions { font-size: 1.15rem; line-height: 1.5; }
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.instructions {
-  font-size: 1.15rem;
-  line-height: 1.5;
+.section-heading p { margin: 0; font-size: 0.9rem; font-weight: bold; }
+.quest-map { display: grid; gap: 12px; list-style: none; margin: 20px 0 0; padding: 0; }
+
+.quest-stop {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 14px;
+  border: 3px solid #172033;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: left;
 }
 
-.exercise {
-  margin: 32px 0;
-  padding: 24px;
-  border-radius: 16px;
-  background: #f2efff;
+.quest-stop.current { background: #dff5ff; }
+.quest-stop.locked { border-color: #687080; color: #687080; background: #f4f5f7; }
+
+.stop-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: #6a4ee6;
+  color: white;
+  font-weight: bold;
 }
+
+.locked .stop-icon { background: #9aa1ad; }
+.stop-title, .stop-description { display: block; }
+.stop-description { margin-top: 3px; font-size: 0.9rem; }
+
+.exercise { margin: 32px 0; padding: 24px; border-radius: 16px; background: #f2efff; }
 
 .target {
   font-family: "Courier New", monospace;
@@ -58,23 +83,10 @@ h1 {
   margin: 12px 0;
 }
 
-.current-letter {
-  color: #6a4ee6;
-  text-decoration: underline;
-}
-
-.completed-letter {
-  color: #19935a;
-}
-
-.feedback {
-  font-weight: bold;
-  min-height: 1.5em;
-}
-
-.mistake {
-  color: #bb2143;
-}
+.current-letter { color: #6a4ee6; text-decoration: underline; }
+.completed-letter { color: #19935a; }
+.feedback { font-weight: bold; min-height: 1.5em; }
+.mistake { color: #bb2143; }
 
 button {
   cursor: pointer;
@@ -87,7 +99,10 @@ button {
   padding: 12px 22px;
 }
 
-button:hover,
-button:focus-visible {
-  background: #ffbf3f;
+button:hover, button:focus-visible { background: #ffbf3f; }
+
+@media (max-width: 520px) {
+  .lesson-card, .journey { padding: 24px; }
+  .section-heading { display: block; }
+  .section-heading p { margin-top: 6px; }
 }

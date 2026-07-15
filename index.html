@@ -3,26 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Type Quest</title>
+    <title>Keyboard Quest</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="lesson-card">
-      <p class="eyebrow">Lesson 1 · Home row</p>
-      <h1>Wake the friendly robot</h1>
-      <p class="instructions">
-        Keep your fingers on <strong>F</strong> and <strong>J</strong>. Type the pattern below.
-      </p>
+    <main class="app-shell">
+      <header class="app-header">
+        <p class="eyebrow">Keyboard Quest</p>
+        <h1>Choose your next stop</h1>
+        <p class="instructions">Complete small missions to light the path across the keyboard.</p>
+      </header>
 
-      <section class="exercise" aria-labelledby="exercise-heading">
-        <h2 id="exercise-heading">Your mission</h2>
-        <p id="target" class="target" aria-label="Letters to type">f j f j</p>
-        <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
+      <section class="journey" aria-labelledby="journey-heading">
+        <div class="section-heading">
+          <h2 id="journey-heading">Your journey</h2>
+          <p><span aria-hidden="true">✦</span> 0 of 6 objectives complete</p>
+        </div>
+        <ol id="quest-map" class="quest-map"></ol>
       </section>
 
-      <button id="restart-button" type="button">Try again</button>
+      <section class="lesson-card" aria-labelledby="lesson-title">
+        <p class="eyebrow">Objective 1 · Home row</p>
+        <h2 id="lesson-title">Home-Row Anchors</h2>
+        <p id="lesson-description" class="instructions"></p>
+
+        <section class="exercise" aria-labelledby="exercise-heading">
+          <h3 id="exercise-heading">Mission 1 of 1</h3>
+          <p id="target" class="target" aria-label="Letters to type"></p>
+          <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
+        </section>
+
+        <button id="restart-button" type="button">Restart mission</button>
+      </section>
     </main>
 
+    <script src="lessons.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

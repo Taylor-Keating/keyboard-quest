@@ -1,45 +1,51 @@
-// This array is our lesson data. Spaces are included because the child
-// should practice pressing the space bar too.
-const lesson = ["f", " ", "j", " ", "f", " ", "j"];
-
-// These variables remember the state of the exercise while the page is open.
+// Find the one objective currently available on the map.
+const currentLesson = QUEST_LESSONS.find((lesson) => lesson.status === "current");
+const lesson = currentLesson.practice;
 let position = 0;
 
 const targetElement = document.querySelector("#target");
 const feedbackElement = document.querySelector("#feedback");
 const restartButton = document.querySelector("#restart-button");
+const questMapElement = document.querySelector("#quest-map");
+const lessonTitleElement = document.querySelector("#lesson-title");
+const lessonDescriptionElement = document.querySelector("#lesson-description");
+
+function drawQuestMap() {
+  questMapElement.innerHTML = QUEST_LESSONS.map((lesson, index) => {
+    const icon = lesson.status === "locked" ? "🔒" : index + 1;
+
+    return `
+      <li class="quest-stop ${lesson.status}">
+        <span class="stop-icon" aria-hidden="true">${icon}</span>
+        <span>
+          <strong class="stop-title">${lesson.title}</strong>
+          <span class="stop-description">${lesson.description}</span>
+        </span>
+      </li>`;
+  }).join("");
+}
 
 function drawLesson() {
-  // Turn each lesson character into a visible span so CSS can style it.
-  targetElement.innerHTML = lesson
-    .map((letter, index) => {
-      const displayLetter = letter === " " ? "·" : letter;
-
-      if (index < position) {
-        return `<span class="completed-letter">${displayLetter}</span>`;
-      }
-
-      if (index === position) {
-        return `<span class="current-letter">${displayLetter}</span>`;
-      }
-
-      return `<span>${displayLetter}</span>`;
-    })
-    .join("");
+  targetElement.innerHTML = lesson.map((letter, index) => {
+    const displayLetter = letter === " " ? "·" : letter;
+    if (index < position) return `<span class="completed-letter">${displayLetter}</span>`;
+    if (index === position) return `<span class="current-letter">${displayLetter}</span>`;
+    return `<span>${displayLetter}</span>`;
+  }).join("");
 }
 
 function restartLesson() {
   position = 0;
   feedbackElement.textContent = "Press the first letter when you are ready.";
   feedbackElement.classList.remove("mistake");
+  // A focused button treats Space as another click. Move focus away so Space
+  // can be used as the next typing answer.
+  restartButton.blur();
   drawLesson();
 }
 
 document.addEventListener("keydown", (event) => {
-  // Ignore keys such as Shift and ArrowLeft. They are not typing answers.
-  if (event.key.length !== 1 || position === lesson.length) {
-    return;
-  }
+  if (event.key.length !== 1 || position === lesson.length) return;
 
   const typedLetter = event.key.toLowerCase();
   const expectedLetter = lesson[position];
@@ -47,21 +53,20 @@ document.addEventListener("keydown", (event) => {
   if (typedLetter === expectedLetter) {
     position += 1;
     feedbackElement.classList.remove("mistake");
-
-    if (position === lesson.length) {
-      feedbackElement.textContent = "You did it—the robot is awake!";
-    } else {
-      feedbackElement.textContent = "Nice! Keep going.";
-    }
-
+    feedbackElement.textContent = position === lesson.length
+      ? "You did it—the first path marker is glowing!"
+      : "Nice! Keep going.";
     drawLesson();
   } else {
-    feedbackElement.textContent = `Almost! Try ${expectedLetter === " " ? "the space bar" : expectedLetter.toUpperCase()}.`;
+    const hint = expectedLetter === " " ? "the space bar" : expectedLetter.toUpperCase();
+    feedbackElement.textContent = `Almost! Try ${hint}.`;
     feedbackElement.classList.add("mistake");
   }
 });
 
 restartButton.addEventListener("click", restartLesson);
 
-// Draw the initial exercise when the page first loads.
+lessonTitleElement.textContent = currentLesson.title;
+lessonDescriptionElement.textContent = currentLesson.description;
+drawQuestMap();
 drawLesson();
