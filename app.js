@@ -1,10 +1,13 @@
 const progressKey = "keyboard-quest-completed-objectives";
+const fingerColorKey = "keyboard-quest-show-all-finger-colors";
 const completedLessonIds = new Set(JSON.parse(localStorage.getItem(progressKey) || "[]"));
+let showsFullFingerColors = localStorage.getItem(fingerColorKey) === "true";
 
 let currentLesson = QUEST_LESSONS.find((lesson) => !completedLessonIds.has(lesson.id)) || QUEST_LESSONS[0];
 let missionIndex = 0;
 let position = 0;
 let waitingToContinue = false;
+let waitingToStartPractice = false;
 
 const targetElement = document.querySelector("#target");
 const feedbackElement = document.querySelector("#feedback");
@@ -12,13 +15,23 @@ const restartButton = document.querySelector("#restart-button");
 const continueButton = document.querySelector("#continue-button");
 const nextChapterButton = document.querySelector("#next-chapter-button");
 const questMapElement = document.querySelector("#quest-map");
+const objectiveLabelElement = document.querySelector("#objective-label");
 const lessonTitleElement = document.querySelector("#lesson-title");
 const lessonDescriptionElement = document.querySelector("#lesson-description");
 const progressTextElement = document.querySelector("#progress-text");
 const missionHeadingElement = document.querySelector("#exercise-heading");
 const missionNoteElement = document.querySelector("#mission-note");
+const learningCardElement = document.querySelector("#learning-card");
+const learningPhaseElement = document.querySelector("#learning-phase");
+const learningHeadingElement = document.querySelector("#learning-heading");
+const learningCopyElement = document.querySelector("#learning-copy");
+const learningStepsElement = document.querySelector("#learning-steps");
+const learningGoalElement = document.querySelector("#learning-goal");
+const startPracticeButton = document.querySelector("#start-practice-button");
+const practiceAreaElement = document.querySelector("#practice-area");
 const fingerCueElement = document.querySelector("#finger-cue");
 const keyboardGuideElement = document.querySelector("#keyboard-guide");
+const fullColorToggle = document.querySelector("#full-color-toggle");
 
 const KEYBOARD_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -74,10 +87,23 @@ function drawQuestMap() {
 }
 
 function drawMissionHeading() {
-  missionHeadingElement.textContent = `Mission ${missionIndex + 1} of ${currentLesson.missions.length}: ${currentMission().title}`;
+  const mission = currentMission();
+  missionHeadingElement.textContent = `${mission.phase || "Mission"} · ${missionIndex + 1} of ${currentLesson.missions.length}: ${mission.title}`;
   missionNoteElement.textContent = currentMission().note || (missionIndex === 0
     ? "Learn the pattern slowly and carefully."
     : "Keep your fingers returning to home base.");
+}
+
+function drawLearningContent() {
+  const learning = currentMission().learning;
+  learningCardElement.hidden = !learning;
+  if (!learning) return;
+
+  learningPhaseElement.textContent = currentMission().phase;
+  learningHeadingElement.textContent = learning.heading;
+  learningCopyElement.textContent = learning.copy;
+  learningStepsElement.innerHTML = learning.steps.map((step) => `<li>${step}</li>`).join("");
+  learningGoalElement.textContent = learning.goal;
 }
 
 function drawLesson() {
@@ -93,6 +119,7 @@ function drawLesson() {
 
 function drawFingerGuide() {
   const practice = currentPractice();
+  const missionKeys = new Set(practice.filter((key) => key !== " "));
   const nextKey = practice[position];
   const finger = KEY_FINGERS[nextKey];
 
@@ -105,7 +132,8 @@ function drawFingerGuide() {
       ${row.map((key) => {
         const fingerClass = `finger-${KEY_FINGERS[key].replace(" ", "-")}`;
         const activeClass = key === nextKey ? "active-key" : "";
-        return `<span class="keyboard-key ${fingerClass} ${activeClass}">${key.toUpperCase()}</span>`;
+        const focusClass = missionKeys.has(key) ? "mission-key" : showsFullFingerColors ? "" : "not-in-mission-key";
+        return `<span class="keyboard-key ${fingerClass} ${focusClass} ${activeClass}">${key.toUpperCase()}</span>`;
       }).join("")}
     </div>`).join("");
   const spaceIsNext = nextKey === " " ? "active-key" : "";
@@ -120,12 +148,24 @@ function startCurrentMission() {
   feedbackElement.textContent = "Press the first letter when you are ready.";
   feedbackElement.classList.remove("mistake");
   drawMissionHeading();
+  drawLearningContent();
   drawLesson();
+  waitingToStartPractice = Boolean(currentMission().learning);
+  practiceAreaElement.hidden = waitingToStartPractice;
+  startPracticeButton.hidden = !waitingToStartPractice;
+}
+
+function startPractice() {
+  waitingToStartPractice = false;
+  practiceAreaElement.hidden = false;
+  startPracticeButton.hidden = true;
+  startPracticeButton.blur();
 }
 
 function loadLesson(lessonId) {
   currentLesson = QUEST_LESSONS.find((lesson) => lesson.id === lessonId);
   missionIndex = 0;
+  objectiveLabelElement.textContent = `Objective ${QUEST_LESSONS.indexOf(currentLesson) + 1} · Keyboard skills`;
   lessonTitleElement.textContent = currentLesson.title;
   lessonDescriptionElement.textContent = currentLesson.description;
   drawQuestMap();
@@ -147,7 +187,7 @@ function completeCurrentMission() {
   waitingToContinue = true;
   continueButton.textContent = `Start mission ${missionIndex + 2}`;
   continueButton.hidden = false;
-  feedbackElement.textContent = "Mission complete! Take a breath, then continue.";
+  feedbackElement.textContent = "Mission complete! Press Enter or Space to continue.";
   drawLesson();
 }
 
@@ -159,14 +199,38 @@ function completeCurrentLesson() {
   if (nextLesson) {
     nextChapterButton.textContent = `Continue to ${nextLesson.title}`;
     nextChapterButton.hidden = false;
+    feedbackElement.textContent += " Press Enter or Space to continue.";
   }
   drawProgress();
   drawQuestMap();
 }
 
 document.addEventListener("keydown", (event) => {
+  const isContinueKey = event.key === "Enter" || event.key === " ";
+  if (waitingToStartPractice && isContinueKey) {
+    event.preventDefault();
+    startPractice();
+    return;
+  }
+
+  if (waitingToContinue && isContinueKey) {
+    event.preventDefault();
+    missionIndex += 1;
+    startCurrentMission();
+    return;
+  }
+
+  if (!nextChapterButton.hidden && isContinueKey) {
+    const nextLesson = QUEST_LESSONS[QUEST_LESSONS.indexOf(currentLesson) + 1];
+    if (nextLesson) {
+      event.preventDefault();
+      loadLesson(nextLesson.id);
+    }
+    return;
+  }
+
   const practice = currentPractice();
-  if (event.key.length !== 1 || waitingToContinue || position === practice.length) return;
+  if (event.key.length !== 1 || waitingToStartPractice || waitingToContinue || position === practice.length) return;
 
   const typedLetter = event.key.toLowerCase();
   const expectedLetter = practice[position];
@@ -188,6 +252,13 @@ continueButton.addEventListener("click", () => {
   missionIndex += 1;
   continueButton.blur();
   startCurrentMission();
+});
+startPracticeButton.addEventListener("click", startPractice);
+fullColorToggle.checked = showsFullFingerColors;
+fullColorToggle.addEventListener("change", () => {
+  showsFullFingerColors = fullColorToggle.checked;
+  localStorage.setItem(fingerColorKey, showsFullFingerColors);
+  drawFingerGuide();
 });
 nextChapterButton.addEventListener("click", () => {
   const nextLesson = QUEST_LESSONS[QUEST_LESSONS.indexOf(currentLesson) + 1];

@@ -23,6 +23,20 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
 .journey { margin-bottom: 32px; background: #fff8d8; }
 .lesson-card { text-align: center; }
 
+.learning-card {
+  margin: 24px 0;
+  padding: 24px;
+  border: 3px solid #172033;
+  border-radius: 16px;
+  background: #fff8d8;
+  text-align: left;
+}
+
+.learning-card h3 { margin-bottom: 8px; }
+.learning-card p { line-height: 1.45; }
+.learning-steps { margin: 16px 0; padding-left: 24px; line-height: 1.55; }
+.learning-goal { margin-bottom: 0; color: #4b3aa8; font-weight: bold; }
+
 .eyebrow {
   color: #4b3aa8;
   font-weight: bold;
@@ -113,6 +127,14 @@ h2, h3 { margin-top: 0; }
 .finger-cue { margin: 0 0 8px; font-size: 1.2rem; font-weight: bold; }
 .home-base-tip { margin: 0; font-size: 0.92rem; line-height: 1.4; }
 
+.color-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-weight: bold; }
+.color-toggle input { position: absolute; opacity: 0; }
+.toggle-track { width: 42px; height: 24px; padding: 3px; border: 2px solid #172033; border-radius: 999px; background: #9aa1ad; }
+.toggle-knob { display: block; width: 14px; height: 14px; border-radius: 50%; background: white; transition: transform 160ms ease; }
+.color-toggle input:checked + .toggle-track { background: #6a4ee6; }
+.color-toggle input:checked + .toggle-track .toggle-knob { transform: translateX(18px); }
+.color-toggle input:focus-visible + .toggle-track { outline: 3px solid #172033; outline-offset: 3px; }
+
 .keyboard-guide { display: grid; gap: 5px; }
 .keyboard-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
 .keyboard-space-row { display: flex; justify-content: center; padding-top: 4px; }
@@ -129,6 +151,8 @@ h2, h3 { margin-top: 0; }
 }
 
 .keyboard-key.active-key { outline: 4px solid #172033; outline-offset: 2px; transform: translateY(-3px); }
+.keyboard-key.mission-key { box-shadow: inset 0 0 0 2px white; }
+.keyboard-key.not-in-mission-key { background: #edf0f4; color: #687080; opacity: 0.58; }
 .keyboard-space {
   width: 55%;
   min-height: 30px;

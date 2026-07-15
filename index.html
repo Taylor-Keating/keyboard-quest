@@ -23,30 +23,46 @@
       </section>
 
       <section class="lesson-card" aria-labelledby="lesson-title">
-        <p class="eyebrow">Objective 1 · Home row</p>
+        <p id="objective-label" class="eyebrow">Objective 1 · Home row</p>
         <h2 id="lesson-title">Home-Row Anchors</h2>
         <p id="lesson-description" class="instructions"></p>
+
+        <section id="learning-card" class="learning-card" aria-labelledby="learning-heading">
+          <p id="learning-phase" class="eyebrow"></p>
+          <h3 id="learning-heading"></h3>
+          <p id="learning-copy"></p>
+          <ul id="learning-steps" class="learning-steps"></ul>
+          <p id="learning-goal" class="learning-goal"></p>
+          <button id="start-practice-button" type="button">I’m ready to practice</button>
+        </section>
 
         <section class="finger-guide" aria-labelledby="finger-guide-heading">
           <div>
             <h3 id="finger-guide-heading">Finger guide</h3>
             <p id="finger-cue" class="finger-cue"></p>
             <p class="home-base-tip">Home base: rest on A S D F and J K L ;. Feel the bumps on F and J.</p>
+            <label class="color-toggle">
+              <input id="full-color-toggle" type="checkbox" />
+              <span class="toggle-track" aria-hidden="true"><span class="toggle-knob"></span></span>
+              <span>Show all finger colors</span>
+            </label>
           </div>
           <div id="keyboard-guide" class="keyboard-guide" aria-label="Color-coded QWERTY keyboard"></div>
         </section>
 
-        <section class="exercise" aria-labelledby="exercise-heading">
-          <h3 id="exercise-heading"></h3>
-          <p id="mission-note" class="mission-note"></p>
-          <p id="target" class="target" aria-label="Letters to type"></p>
-          <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
-        </section>
+        <div id="practice-area" hidden>
+          <section class="exercise" aria-labelledby="exercise-heading">
+            <h3 id="exercise-heading"></h3>
+            <p id="mission-note" class="mission-note"></p>
+            <p id="target" class="target" aria-label="Letters to type"></p>
+            <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
+          </section>
 
-        <div class="mission-actions">
-          <button id="continue-button" type="button" hidden>Start next mission</button>
-          <button id="next-chapter-button" type="button" hidden>Continue to next chapter</button>
-          <button id="restart-button" type="button">Restart mission</button>
+          <div class="mission-actions">
+            <button id="continue-button" type="button" hidden>Start next mission</button>
+            <button id="next-chapter-button" type="button" hidden>Continue to next chapter</button>
+            <button id="restart-button" type="button">Restart mission</button>
+          </div>
         </div>
       </section>
     </main>
