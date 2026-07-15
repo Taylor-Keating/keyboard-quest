@@ -37,12 +37,17 @@
         </section>
 
         <section class="exercise" aria-labelledby="exercise-heading">
-          <h3 id="exercise-heading">Mission 1 of 1</h3>
+          <h3 id="exercise-heading"></h3>
+          <p id="mission-note" class="mission-note"></p>
           <p id="target" class="target" aria-label="Letters to type"></p>
           <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
         </section>
 
-        <button id="restart-button" type="button">Restart mission</button>
+        <div class="mission-actions">
+          <button id="continue-button" type="button" hidden>Start next mission</button>
+          <button id="next-chapter-button" type="button" hidden>Continue to next chapter</button>
+          <button id="restart-button" type="button">Restart mission</button>
+        </div>
       </section>
     </main>
 
