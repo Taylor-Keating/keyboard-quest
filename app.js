@@ -13,6 +13,27 @@ const questMapElement = document.querySelector("#quest-map");
 const lessonTitleElement = document.querySelector("#lesson-title");
 const lessonDescriptionElement = document.querySelector("#lesson-description");
 const progressTextElement = document.querySelector("#progress-text");
+const fingerCueElement = document.querySelector("#finger-cue");
+const keyboardGuideElement = document.querySelector("#keyboard-guide");
+
+// Each key belongs to one finger. The text labels provide the instruction;
+// the matching keyboard colors make it easier to see the pattern at a glance.
+const KEYBOARD_ROWS = [
+  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+  ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";"],
+  ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/"],
+];
+
+const KEY_FINGERS = {
+  q: "left pinky", a: "left pinky", z: "left pinky",
+  w: "left ring", s: "left ring", x: "left ring",
+  e: "left middle", d: "left middle", c: "left middle",
+  r: "left index", f: "left index", v: "left index", t: "left index", g: "left index", b: "left index",
+  y: "right index", h: "right index", n: "right index", u: "right index", j: "right index", m: "right index",
+  i: "right middle", k: "right middle", ",": "right middle",
+  o: "right ring", l: "right ring", ".": "right ring",
+  p: "right pinky", ";": "right pinky", "/": "right pinky",
+};
 
 function isLessonUnlocked(lesson) {
   const lessonIndex = QUEST_LESSONS.indexOf(lesson);
@@ -52,6 +73,32 @@ function drawLesson() {
     if (index === position) return `<span class="current-letter">${displayLetter}</span>`;
     return `<span>${displayLetter}</span>`;
   }).join("");
+
+  drawFingerGuide();
+}
+
+function drawFingerGuide() {
+  const nextKey = currentLesson.practice[position];
+  const visibleKey = nextKey === " " ? "space" : nextKey;
+  const finger = KEY_FINGERS[nextKey];
+
+  fingerCueElement.textContent = position === currentLesson.practice.length
+    ? "Mission complete! Return your hands to home base."
+    : nextKey === " "
+      ? "Next: Space bar — use either thumb."
+      : `Next: ${visibleKey.toUpperCase()} — ${finger} finger.`;
+
+  const letterRows = KEYBOARD_ROWS.map((row) => `
+    <div class="keyboard-row">
+      ${row.map((key) => {
+        const fingerClass = `finger-${KEY_FINGERS[key].replace(" ", "-")}`;
+        const activeClass = key === nextKey ? "active-key" : "";
+        return `<span class="keyboard-key ${fingerClass} ${activeClass}">${key === ";" ? ";" : key.toUpperCase()}</span>`;
+      }).join("")}
+    </div>`).join("");
+  const spaceIsNext = nextKey === " " ? "active-key" : "";
+  const spaceBar = `<div class="keyboard-space-row"><span class="keyboard-key keyboard-space ${spaceIsNext}">SPACE</span></div>`;
+  keyboardGuideElement.innerHTML = letterRows + spaceBar;
 }
 
 function loadLesson(lessonId) {
