@@ -45,7 +45,7 @@
         <p class="warning-icon" aria-hidden="true">!</p>
         <p class="eyebrow">Careful!</p>
         <h2 id="reset-progress-heading">Reset <span id="reset-profile-name"></span>’s progress?</h2>
-        <p id="reset-progress-description">This permanently erases completed objectives and saved performance statistics. The player’s name, avatar, theme, and sound settings will stay.</p>
+        <p id="reset-progress-description">This permanently erases completed objectives, stage unlocks, and saved performance statistics. The player’s name, avatar, theme, and sound settings will stay.</p>
         <div class="confirmation-actions">
           <button id="cancel-reset-button" type="button">Keep progress</button>
           <button id="confirm-reset-button" class="danger-button" type="button">Reset progress</button>
@@ -74,7 +74,23 @@
           <button id="cancel-edit-profile-button" type="button">Cancel</button>
           <button type="submit">Save profile</button>
         </div>
+        <div class="edit-profile-danger-zone">
+          <p><strong>Delete this player</strong><span>Permanently remove this profile and everything saved to it.</span></p>
+          <button id="delete-profile-from-edit-button" class="danger-button" type="button">Delete profile</button>
+        </div>
       </form>
+    </section>
+    <section id="delete-profile-dialog" class="confirmation-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-profile-heading" aria-describedby="delete-profile-description" hidden>
+      <div class="confirmation-card">
+        <p class="warning-icon" aria-hidden="true">!</p>
+        <p class="eyebrow">Permanent deletion</p>
+        <h2 id="delete-profile-heading">Delete <span id="delete-profile-name"></span>?</h2>
+        <p id="delete-profile-description">This permanently deletes the entire profile, including all lesson progress, scores, statistics, themes, and settings. This cannot be undone.</p>
+        <div class="confirmation-actions">
+          <button id="cancel-delete-profile-button" type="button">Keep profile</button>
+          <button id="confirm-delete-profile-button" class="danger-button" type="button">Delete everything</button>
+        </div>
+      </div>
     </section>
     <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -128,7 +144,7 @@
       <header class="app-header">
         <p class="eyebrow">Keyboard Quest</p>
         <h1>Choose your next stop</h1>
-        <p class="instructions">Complete small missions to light the path across the keyboard.</p>
+        <p class="instructions">Complete three stages to light each new stop across the keyboard.</p>
       </header>
 
       <nav class="mode-switcher" aria-label="Choose an activity mode">
@@ -148,6 +164,10 @@
         <p id="objective-label" class="eyebrow">Objective 1 · Home row</p>
         <h2 id="lesson-title">Home-Row Anchors</h2>
         <p id="lesson-description" class="instructions"></p>
+        <nav class="stage-selector" aria-label="Choose a stage">
+          <span class="stage-selector-label">Stage</span>
+          <div id="stage-buttons" class="stage-buttons"></div>
+        </nav>
 
         <section id="learning-card" class="learning-card" aria-labelledby="learning-heading">
           <p id="learning-phase" class="eyebrow"></p>
@@ -179,7 +199,7 @@
             <p id="target" class="target" aria-label="Letters to type"></p>
             <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
             <section id="mission-results" class="mission-results" aria-labelledby="results-heading" hidden>
-              <h4 id="results-heading">Mission results</h4>
+              <h4 id="results-heading">Stage results</h4>
               <div class="result-grid">
                 <p><strong id="accuracy-result">100%</strong><span>Accuracy</span></p>
                 <p><strong id="mistakes-result">0</strong><span>Mistakes</span></p>
@@ -191,9 +211,9 @@
           </section>
 
           <div class="mission-actions">
-            <button id="continue-button" type="button" hidden>Start next mission</button>
+            <button id="continue-button" type="button" hidden>Start next stage</button>
             <button id="next-chapter-button" type="button" hidden>Continue to next chapter</button>
-            <button id="restart-button" type="button">Restart mission</button>
+            <button id="restart-button" type="button">Restart stage</button>
           </div>
         </div>
         </section>

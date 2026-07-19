@@ -2,7 +2,9 @@ const progressKey = profileStorageKey("keyboard-quest-completed-objectives");
 const fingerColorKey = profileStorageKey("keyboard-quest-show-all-finger-colors");
 const mistakeSoundKey = profileStorageKey("keyboard-quest-mistake-sound");
 const themeKey = profileStorageKey("keyboard-quest-theme");
+const stageProgressKey = profileStorageKey("keyboard-quest-completed-stages");
 const completedLessonIds = new Set(JSON.parse(localStorage.getItem(progressKey) || "[]"));
+const completedStageIds = new Set(JSON.parse(localStorage.getItem(stageProgressKey) || "[]"));
 let showsFullFingerColors = localStorage.getItem(fingerColorKey) === "true";
 let playsMistakeSound = localStorage.getItem(mistakeSoundKey) !== "false";
 let selectedTheme = localStorage.getItem(themeKey) || "classic";
@@ -12,6 +14,7 @@ let lastMistakeSoundAt = 0;
 let currentLesson = QUEST_LESSONS.find((lesson) => !completedLessonIds.has(lesson.id)) || QUEST_LESSONS[0];
 let missionIndex = 0;
 let position = 0;
+let generatedPractice = null;
 let waitingToContinue = false;
 let waitingToStartPractice = false;
 let activeMode = "learn";
@@ -53,6 +56,24 @@ const settingsPanel = document.querySelector("#settings-panel");
 const closeSettingsButton = document.querySelector("#close-settings-button");
 const themeOptions = [...document.querySelectorAll('[name="app-theme"]')];
 const profileGateElement = document.querySelector("#profile-gate");
+const stageButtonsElement = document.querySelector("#stage-buttons");
+
+function stageId(lesson, stageIndex) {
+  return `${lesson.id}:${stageIndex + 1}`;
+}
+
+let migratedCompletedStages = false;
+completedLessonIds.forEach((lessonId) => {
+  const completedLesson = QUEST_LESSONS.find((lesson) => lesson.id === lessonId);
+  completedLesson?.missions.forEach((mission, stageIndex) => {
+    const id = stageId(completedLesson, stageIndex);
+    if (!completedStageIds.has(id)) {
+      completedStageIds.add(id);
+      migratedCompletedStages = true;
+    }
+  });
+});
+if (migratedCompletedStages) localStorage.setItem(stageProgressKey, JSON.stringify([...completedStageIds]));
 
 function applyTheme(theme) {
   const availableThemes = ["classic", "rebel-royal", "shark"];
@@ -97,8 +118,63 @@ function currentMission() {
   return currentLesson.missions[missionIndex];
 }
 
+function stageLabel(stageIndex = missionIndex) {
+  return `Stage ${stageIndex + 1}`;
+}
+
+function isStageUnlocked(stageIndex) {
+  return stageIndex === 0 || completedStageIds.has(stageId(currentLesson, stageIndex - 1));
+}
+
+function drawStageSelector() {
+  stageButtonsElement.innerHTML = currentLesson.missions.map((mission, stageIndex) => {
+    const completed = completedStageIds.has(stageId(currentLesson, stageIndex));
+    const unlocked = isStageUnlocked(stageIndex);
+    const current = stageIndex === missionIndex;
+    const classes = ["stage-button", completed ? "completed" : "", current ? "current" : "", unlocked ? "" : "locked"].filter(Boolean).join(" ");
+    const state = completed ? "complete" : current ? "current" : unlocked ? "available" : "locked";
+    const stateMark = completed ? "✓" : unlocked ? "" : "🔒";
+    return `<button class="${classes}" type="button" data-stage-index="${stageIndex}" ${unlocked ? "" : "disabled"} aria-label="${stageLabel(stageIndex)}: ${mission.title}, ${state}" ${current ? 'aria-current="step"' : ""} title="${mission.title}"><strong>${stageIndex + 1}</strong><span aria-hidden="true">${stateMark}</span></button>`;
+  }).join("");
+
+  stageButtonsElement.querySelectorAll("[data-stage-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedStageIndex = Number(button.dataset.stageIndex);
+      if (!isStageUnlocked(selectedStageIndex)) return;
+      missionIndex = selectedStageIndex;
+      startCurrentMission(true);
+    });
+  });
+}
+
 function currentPractice() {
-  return Array.from(currentMission().practice);
+  return Array.from(generatedPractice || currentMission().practice);
+}
+
+function shuffledKeys(keys) {
+  const shuffled = [...keys];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function generateMissionPractice() {
+  const config = currentMission().randomPractice;
+  if (!config) return currentMission().practice;
+
+  const keys = Array.from(config.keys);
+  const sequence = [];
+  while (sequence.length < config.length) {
+    const nextCycle = shuffledKeys(keys);
+    if (sequence.length >= 2 && sequence.at(-1) === sequence.at(-2) && nextCycle[0] === sequence.at(-1)) {
+      const differentKeyIndex = nextCycle.findIndex((key) => key !== sequence.at(-1));
+      [nextCycle[0], nextCycle[differentKeyIndex]] = [nextCycle[differentKeyIndex], nextCycle[0]];
+    }
+    sequence.push(...nextCycle);
+  }
+  return sequence.slice(0, config.length).join(config.separator ?? " ");
 }
 
 function targetKeySpan(key, stateClass = "") {
@@ -137,7 +213,8 @@ function drawQuestMap() {
 
 function drawMissionHeading() {
   const mission = currentMission();
-  missionHeadingElement.textContent = `${mission.phase || "Mission"} · ${missionIndex + 1} of ${currentLesson.missions.length}: ${mission.title}`;
+  objectiveLabelElement.textContent = `Objective ${QUEST_LESSONS.indexOf(currentLesson) + 1} · ${stageLabel()}`;
+  missionHeadingElement.textContent = `${stageLabel()} · ${mission.title}`;
   missionNoteElement.textContent = currentMission().note || (missionIndex === 0
     ? "Learn the pattern slowly and carefully."
     : "Keep your fingers returning to home base.");
@@ -148,11 +225,11 @@ function drawLearningContent() {
   learningCardElement.hidden = !learning;
   if (!learning) return;
 
-  learningPhaseElement.textContent = currentMission().phase;
+  learningPhaseElement.textContent = stageLabel();
   learningHeadingElement.textContent = learning.heading;
   learningCopyElement.textContent = learning.copy;
   learningStepsElement.innerHTML = learning.steps.map((step) => `<li>${step}</li>`).join("");
-  learningGoalElement.textContent = learning.goal;
+  learningGoalElement.textContent = learning.goal.replace(/^Mastery goal:/, "Stage 3 goal:");
 }
 
 function drawLesson() {
@@ -304,7 +381,7 @@ function drawMissionResults() {
       ? "Great control!"
       : accuracy >= 75
         ? "Nice work. A slower rhythm may make the next run even smoother."
-        : "Good persistence. Try the mission again when you want another practice run.";
+        : "Good persistence. Try the stage again when you want another practice run.";
   missionResultsElement.hidden = false;
 }
 
@@ -318,7 +395,7 @@ function drawFingerGuide() {
   fullColorToggle.checked = showsEveryKey;
   fullColorToggle.disabled = Boolean(currentLesson.showFullKeyboard);
 
-  if (position === practice.length) fingerCueElement.textContent = "Mission complete! Return your hands to home base.";
+  if (position === practice.length) fingerCueElement.textContent = "Stage complete! Return your hands to home base.";
   else if (nextKey === " ") fingerCueElement.textContent = "Next: Space bar — use either thumb.";
   else fingerCueElement.textContent = `Next: ${nextKey.toUpperCase()} — ${finger} finger.`;
 
@@ -336,6 +413,7 @@ function drawFingerGuide() {
 }
 
 function startCurrentMission(shouldScroll = false) {
+  generatedPractice = generateMissionPractice();
   position = 0;
   mistakeCount = 0;
   attemptCount = 0;
@@ -346,6 +424,7 @@ function startCurrentMission(shouldScroll = false) {
   feedbackElement.textContent = "Press the first letter when you are ready.";
   feedbackElement.classList.remove("mistake");
   missionResultsElement.hidden = true;
+  drawStageSelector();
   drawMissionHeading();
   drawLearningContent();
   drawLesson();
@@ -365,8 +444,8 @@ function startPractice() {
 
 function loadLesson(lessonId, shouldScroll = true) {
   currentLesson = QUEST_LESSONS.find((lesson) => lesson.id === lessonId);
-  missionIndex = 0;
-  objectiveLabelElement.textContent = `Objective ${QUEST_LESSONS.indexOf(currentLesson) + 1} · Keyboard skills`;
+  const firstIncompleteStage = currentLesson.missions.findIndex((mission, stageIndex) => !completedStageIds.has(stageId(currentLesson, stageIndex)));
+  missionIndex = firstIncompleteStage === -1 ? 0 : firstIncompleteStage;
   lessonTitleElement.textContent = currentLesson.title;
   lessonDescriptionElement.textContent = currentLesson.description;
   drawQuestMap();
@@ -379,6 +458,9 @@ function restartMission() {
 }
 
 function completeCurrentMission() {
+  completedStageIds.add(stageId(currentLesson, missionIndex));
+  localStorage.setItem(stageProgressKey, JSON.stringify([...completedStageIds]));
+  drawStageSelector();
   drawMissionResults();
   requestAnimationFrame(() => scrollTo(missionResultsElement));
   const isFinalMission = missionIndex === currentLesson.missions.length - 1;
@@ -388,9 +470,9 @@ function completeCurrentMission() {
   }
 
   waitingToContinue = true;
-  continueButton.textContent = `Start mission ${missionIndex + 2}`;
+  continueButton.textContent = `Start Stage ${missionIndex + 2}`;
   continueButton.hidden = false;
-  feedbackElement.textContent = "Mission complete! Press Enter or Space to continue.";
+  feedbackElement.textContent = "Stage complete! Press Enter or Space to continue.";
   drawLesson();
 }
 
@@ -423,6 +505,8 @@ document.addEventListener("keydown", (event) => {
     handleChallengeKey(event);
     return;
   }
+
+  if (event.target.closest?.("[data-stage-index], [data-lesson-id]")) return;
 
   const isContinueKey = event.key === "Enter" || event.key === " ";
   if (waitingToStartPractice && isContinueKey) {

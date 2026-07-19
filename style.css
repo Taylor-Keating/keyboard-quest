@@ -264,6 +264,20 @@ body.profile-gate-open { overflow: hidden; }
 .edit-profile-card > .eyebrow,
 .edit-profile-card > h2 { text-align: center; }
 .edit-profile-card .profile-name-field { margin-top: 22px; }
+.edit-profile-danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 3px solid #e0b7c1;
+}
+.edit-profile-danger-zone p { margin: 0; }
+.edit-profile-danger-zone strong,
+.edit-profile-danger-zone span { display: block; }
+.edit-profile-danger-zone span { margin-top: 3px; color: #687080; font-size: 0.8rem; line-height: 1.35; }
+.edit-profile-danger-zone button { flex: none; }
 
 .lesson-card,
 .journey,
@@ -527,6 +541,34 @@ button {
 
 button:hover, button:focus-visible { background: #ffbf3f; }
 
+.stage-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px auto 8px;
+}
+.stage-selector-label { font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; }
+.stage-buttons { display: flex; gap: 8px; }
+.stage-button {
+  position: relative;
+  display: grid;
+  width: 52px;
+  height: 52px;
+  grid-template-columns: 1fr auto;
+  place-items: center;
+  padding: 6px 7px;
+  border-radius: 13px;
+  background: white;
+}
+.stage-button strong { font-size: 1.15rem; }
+.stage-button span { min-width: 0.7em; font-size: 0.72rem; }
+.stage-button.completed { background: #e3f8e9; }
+.stage-button.current { color: white; background: #6a4ee6; box-shadow: 0 0 0 3px #d8c5ff; }
+.stage-button.locked { border-color: #8b929e; color: #687080; background: #e5e8ec; cursor: not-allowed; opacity: 0.75; }
+.stage-button:not(:disabled):hover,
+.stage-button:not(:disabled):focus-visible { background: #ffbf3f; color: #172033; }
+
 /* Rebel Royal is an original enchanted-school palette with dramatic jewel tones. */
 body[data-theme="rebel-royal"] {
   color: #f8f1ff;
@@ -617,6 +659,10 @@ body[data-theme="rebel-royal"] .completed-letter { color: #6fe29b; }
 body[data-theme="rebel-royal"] .mistake,
 body[data-theme="rebel-royal"] .mistake-letter,
 body[data-theme="rebel-royal"] .setup-error { color: #ff6c92 !important; }
+body[data-theme="rebel-royal"] .stage-button { color: #f8f1ff; background: #241531; }
+body[data-theme="rebel-royal"] .stage-button.completed { color: #dfffb5; background: #24402d; }
+body[data-theme="rebel-royal"] .stage-button.current { color: #180c24; background: linear-gradient(135deg, #b7ed67, #d4a83e); box-shadow: 0 0 0 3px #5f4a76; }
+body[data-theme="rebel-royal"] .stage-button.locked { color: #a99fb0; background: #17131d; }
 body[data-theme="rebel-royal"] .settings-profile { border-color: #63516d; }
 body[data-theme="rebel-royal"] .settings-label { color: #cfc2d8; }
 body[data-theme="rebel-royal"] .reset-profile-progress-button { color: #ffd8e2; background: #61213a; }
@@ -629,6 +675,8 @@ body[data-theme="rebel-royal"] .confirmation-card {
 body[data-theme="rebel-royal"] .danger-button,
 body[data-theme="rebel-royal"] .danger-button:hover,
 body[data-theme="rebel-royal"] .danger-button:focus-visible { color: white; background: #bb2143; }
+body[data-theme="rebel-royal"] .edit-profile-danger-zone { border-color: #694155; }
+body[data-theme="rebel-royal"] .edit-profile-danger-zone span { color: #cfc2d8; }
 body[data-theme="rebel-royal"] .profile-gate { background: rgba(8, 4, 14, 0.82); }
 body[data-theme="rebel-royal"] .profile-panel {
   border-color: #d4a83e;
@@ -741,6 +789,10 @@ body[data-theme="shark"] .pace-note { color: #476673; }
 body[data-theme="shark"] .mistake,
 body[data-theme="shark"] .mistake-letter,
 body[data-theme="shark"] .setup-error { color: #c52342 !important; }
+body[data-theme="shark"] .stage-button { background: #dff8fc; }
+body[data-theme="shark"] .stage-button.completed { background: #b9edcf; }
+body[data-theme="shark"] .stage-button.current { color: white; background: linear-gradient(135deg, #087d9c, #0a526e); box-shadow: 0 0 0 3px #8bd8e5; }
+body[data-theme="shark"] .stage-button.locked { color: #607783; background: #b9cbd0; }
 body[data-theme="shark"] .settings-profile { border-color: #79b7c5; }
 body[data-theme="shark"] .settings-label { color: #476673; }
 body[data-theme="shark"] .reset-profile-progress-button { color: #8f1734; background: #ffdce4; }
@@ -753,6 +805,8 @@ body[data-theme="shark"] .confirmation-card {
 body[data-theme="shark"] .danger-button,
 body[data-theme="shark"] .danger-button:hover,
 body[data-theme="shark"] .danger-button:focus-visible { color: white; background: #bb2143; }
+body[data-theme="shark"] .edit-profile-danger-zone { border-color: #9fcbd4; }
+body[data-theme="shark"] .edit-profile-danger-zone span { color: #476673; }
 body[data-theme="shark"] .profile-gate { background: rgba(2, 20, 31, 0.82); }
 body[data-theme="shark"] .profile-panel {
   border-color: #092f40;
@@ -780,4 +834,6 @@ body[data-theme="shark"] .avatar-options input:checked + span { border-color: #0
   .profile-gate { padding: 14px; }
   .profile-panel { padding: 24px; }
   .profile-list { grid-template-columns: 1fr; }
+  .edit-profile-danger-zone { display: grid; }
+  .edit-profile-danger-zone button { width: 100%; }
 }

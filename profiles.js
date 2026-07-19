@@ -7,6 +7,7 @@ const legacyProfileKeys = [
   "keyboard-quest-show-all-finger-colors",
   "keyboard-quest-mistake-sound",
   "keyboard-quest-theme",
+  "keyboard-quest-completed-stages",
 ];
 
 function readProfiles() {
@@ -82,6 +83,11 @@ const editProfileForm = document.querySelector("#edit-profile-form");
 const editProfileNameInput = document.querySelector("#edit-profile-name-input");
 const editProfileError = document.querySelector("#edit-profile-error");
 const cancelEditProfileButton = document.querySelector("#cancel-edit-profile-button");
+const deleteProfileFromEditButton = document.querySelector("#delete-profile-from-edit-button");
+const deleteProfileDialog = document.querySelector("#delete-profile-dialog");
+const deleteProfileName = document.querySelector("#delete-profile-name");
+const cancelDeleteProfileButton = document.querySelector("#cancel-delete-profile-button");
+const confirmDeleteProfileButton = document.querySelector("#confirm-delete-profile-button");
 
 function profileObjectiveCount(profileId) {
   try {
@@ -182,9 +188,9 @@ function chooseProfile(profileId) {
   window.location.reload();
 }
 
-function deleteProfile(profileId) {
+function removeProfile(profileId) {
   const profile = keyboardQuestProfiles.find((candidate) => candidate.id === profileId);
-  if (!profile || !window.confirm(`Delete ${profile.name}’s profile and all of its saved progress?`)) return;
+  if (!profile) return;
 
   keyboardQuestProfiles = keyboardQuestProfiles.filter((candidate) => candidate.id !== profileId);
   localStorage.setItem(profilesKey, JSON.stringify(keyboardQuestProfiles));
@@ -196,6 +202,12 @@ function deleteProfile(profileId) {
     return;
   }
   drawProfileList();
+}
+
+function deleteProfile(profileId) {
+  const profile = keyboardQuestProfiles.find((candidate) => candidate.id === profileId);
+  if (!profile || !window.confirm(`Delete ${profile.name}’s profile and all of its saved progress?`)) return;
+  removeProfile(profileId);
 }
 
 function setProfileModalBackgroundInert(isInert) {
@@ -230,6 +242,19 @@ function setEditProfileDialogOpen(isOpen, shouldReturnFocus = false) {
   } else if (shouldReturnFocus) settingsProfileHeading.focus();
 }
 
+function setDeleteProfileDialogOpen(isOpen) {
+  const profile = activeProfile();
+  if (isOpen && !profile) return;
+  deleteProfileDialog.hidden = !isOpen;
+  editProfileDialog.inert = isOpen;
+  if (isOpen) {
+    deleteProfileName.textContent = profile.name;
+    cancelDeleteProfileButton.focus();
+  } else {
+    deleteProfileFromEditButton.focus();
+  }
+}
+
 function saveEditedProfile(event) {
   event.preventDefault();
   const profile = activeProfile();
@@ -258,6 +283,7 @@ function resetActiveProfileProgress() {
   if (!activeProfileId) return;
   localStorage.removeItem(profileStorageKey("keyboard-quest-completed-objectives"));
   localStorage.removeItem(profileStorageKey(profileStatsBaseKey));
+  localStorage.removeItem(profileStorageKey("keyboard-quest-completed-stages"));
   window.location.reload();
 }
 
@@ -303,6 +329,16 @@ switchProfileButton.addEventListener("click", () => openProfileChooser(true));
 editProfileButton.addEventListener("click", () => setEditProfileDialogOpen(true));
 editProfileForm.addEventListener("submit", saveEditedProfile);
 cancelEditProfileButton.addEventListener("click", () => setEditProfileDialogOpen(false, true));
+deleteProfileFromEditButton.addEventListener("click", () => setDeleteProfileDialogOpen(true));
+cancelDeleteProfileButton.addEventListener("click", () => setDeleteProfileDialogOpen(false));
+confirmDeleteProfileButton.addEventListener("click", () => removeProfile(activeProfileId));
+deleteProfileDialog.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    setDeleteProfileDialogOpen(false);
+  }
+});
 editProfileDialog.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     event.preventDefault();
