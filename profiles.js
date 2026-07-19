@@ -70,6 +70,18 @@ const closeProfileGateButton = document.querySelector("#close-profile-gate-butto
 const switchProfileButton = document.querySelector("#switch-profile-button");
 const settingsProfileAvatar = document.querySelector("#settings-profile-avatar");
 const settingsProfileName = document.querySelector("#settings-profile-name");
+const settingsProfileHeading = document.querySelector("#settings-profile-heading");
+const resetProfileProgressButton = document.querySelector("#reset-profile-progress-button");
+const resetProgressDialog = document.querySelector("#reset-progress-dialog");
+const resetProfileName = document.querySelector("#reset-profile-name");
+const cancelResetButton = document.querySelector("#cancel-reset-button");
+const confirmResetButton = document.querySelector("#confirm-reset-button");
+const editProfileButton = document.querySelector("#edit-profile-button");
+const editProfileDialog = document.querySelector("#edit-profile-dialog");
+const editProfileForm = document.querySelector("#edit-profile-form");
+const editProfileNameInput = document.querySelector("#edit-profile-name-input");
+const editProfileError = document.querySelector("#edit-profile-error");
+const cancelEditProfileButton = document.querySelector("#cancel-edit-profile-button");
 
 function profileObjectiveCount(profileId) {
   try {
@@ -186,6 +198,69 @@ function deleteProfile(profileId) {
   drawProfileList();
 }
 
+function setProfileModalBackgroundInert(isInert) {
+  document.querySelector("#settings-panel").inert = isInert;
+  document.querySelector(".app-shell").inert = isInert;
+  document.querySelector("#mistake-sound-button").inert = isInert;
+  document.querySelector("#settings-button").inert = isInert;
+}
+
+function setResetDialogOpen(isOpen, shouldReturnFocus = false) {
+  resetProgressDialog.hidden = !isOpen;
+  setProfileModalBackgroundInert(isOpen);
+  if (isOpen) {
+    resetProfileName.textContent = activeProfile()?.name || "this player";
+    cancelResetButton.focus();
+  } else if (shouldReturnFocus) settingsProfileHeading.focus();
+}
+
+function setEditProfileDialogOpen(isOpen, shouldReturnFocus = false) {
+  const profile = activeProfile();
+  if (isOpen && !profile) return;
+  editProfileDialog.hidden = !isOpen;
+  setProfileModalBackgroundInert(isOpen);
+  if (isOpen) {
+    editProfileNameInput.value = profile.name;
+    editProfileError.textContent = "";
+    editProfileForm.querySelectorAll('[name="edit-profile-avatar"]').forEach((option) => {
+      option.checked = option.value === profile.avatar;
+    });
+    editProfileNameInput.focus();
+    editProfileNameInput.select();
+  } else if (shouldReturnFocus) settingsProfileHeading.focus();
+}
+
+function saveEditedProfile(event) {
+  event.preventDefault();
+  const profile = activeProfile();
+  if (!profile) return;
+  const name = editProfileNameInput.value.trim().replace(/\s+/g, " ");
+  if (!name) {
+    editProfileError.textContent = "Enter a player name first.";
+    editProfileNameInput.focus();
+    return;
+  }
+  if (keyboardQuestProfiles.some((candidate) => candidate.id !== profile.id && candidate.name.toLowerCase() === name.toLowerCase())) {
+    editProfileError.textContent = "That player name is already being used.";
+    editProfileNameInput.focus();
+    return;
+  }
+
+  profile.name = name;
+  profile.avatar = editProfileForm.querySelector('[name="edit-profile-avatar"]:checked').value;
+  localStorage.setItem(profilesKey, JSON.stringify(keyboardQuestProfiles));
+  drawActiveProfile();
+  drawProfileList();
+  setEditProfileDialogOpen(false, true);
+}
+
+function resetActiveProfileProgress() {
+  if (!activeProfileId) return;
+  localStorage.removeItem(profileStorageKey("keyboard-quest-completed-objectives"));
+  localStorage.removeItem(profileStorageKey(profileStatsBaseKey));
+  window.location.reload();
+}
+
 profileList.addEventListener("click", (event) => {
   const selectButton = event.target.closest("[data-profile-id]");
   if (selectButton) {
@@ -225,6 +300,26 @@ createProfileForm.addEventListener("submit", (event) => {
 });
 
 switchProfileButton.addEventListener("click", () => openProfileChooser(true));
+editProfileButton.addEventListener("click", () => setEditProfileDialogOpen(true));
+editProfileForm.addEventListener("submit", saveEditedProfile);
+cancelEditProfileButton.addEventListener("click", () => setEditProfileDialogOpen(false, true));
+editProfileDialog.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    setEditProfileDialogOpen(false, true);
+  }
+});
+resetProfileProgressButton.addEventListener("click", () => setResetDialogOpen(true));
+cancelResetButton.addEventListener("click", () => setResetDialogOpen(false, true));
+confirmResetButton.addEventListener("click", resetActiveProfileProgress);
+resetProgressDialog.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    setResetDialogOpen(false, true);
+  }
+});
 closeProfileGateButton.addEventListener("click", () => closeProfileChooser(false));
 profileGate.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && activeProfileId) {

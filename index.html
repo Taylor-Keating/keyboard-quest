@@ -40,6 +40,42 @@
         </form>
       </div>
     </section>
+    <section id="reset-progress-dialog" class="confirmation-dialog" role="alertdialog" aria-modal="true" aria-labelledby="reset-progress-heading" aria-describedby="reset-progress-description" hidden>
+      <div class="confirmation-card">
+        <p class="warning-icon" aria-hidden="true">!</p>
+        <p class="eyebrow">Careful!</p>
+        <h2 id="reset-progress-heading">Reset <span id="reset-profile-name"></span>’s progress?</h2>
+        <p id="reset-progress-description">This permanently erases completed objectives and saved performance statistics. The player’s name, avatar, theme, and sound settings will stay.</p>
+        <div class="confirmation-actions">
+          <button id="cancel-reset-button" type="button">Keep progress</button>
+          <button id="confirm-reset-button" class="danger-button" type="button">Reset progress</button>
+        </div>
+      </div>
+    </section>
+    <section id="edit-profile-dialog" class="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-profile-heading" hidden>
+      <form id="edit-profile-form" class="confirmation-card edit-profile-card">
+        <p class="eyebrow">Player settings</p>
+        <h2 id="edit-profile-heading">Edit profile</h2>
+        <label class="profile-name-field">
+          <span>Player name</span>
+          <input id="edit-profile-name-input" name="edit-profile-name" type="text" maxlength="18" autocomplete="off" required />
+        </label>
+        <fieldset class="avatar-options">
+          <legend>Choose an avatar</legend>
+          <label><input type="radio" name="edit-profile-avatar" value="🦈" /><span aria-label="Shark">🦈</span></label>
+          <label><input type="radio" name="edit-profile-avatar" value="🐉" /><span aria-label="Dragon">🐉</span></label>
+          <label><input type="radio" name="edit-profile-avatar" value="🦄" /><span aria-label="Unicorn">🦄</span></label>
+          <label><input type="radio" name="edit-profile-avatar" value="🦖" /><span aria-label="Dinosaur">🦖</span></label>
+          <label><input type="radio" name="edit-profile-avatar" value="🐙" /><span aria-label="Octopus">🐙</span></label>
+          <label><input type="radio" name="edit-profile-avatar" value="🚀" /><span aria-label="Rocket">🚀</span></label>
+        </fieldset>
+        <p id="edit-profile-error" class="profile-form-error" aria-live="polite"></p>
+        <div class="confirmation-actions">
+          <button id="cancel-edit-profile-button" type="button">Cancel</button>
+          <button type="submit">Save profile</button>
+        </div>
+      </form>
+    </section>
     <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path class="speaker-shape" d="M4 9v6h4l5 4V5L8 9H4Z"></path>
@@ -80,8 +116,12 @@
       </fieldset>
       <section class="settings-profile" aria-labelledby="settings-profile-heading">
         <p class="settings-label">Player</p>
-        <h3 id="settings-profile-heading" class="active-profile-name"><span id="settings-profile-avatar" aria-hidden="true"></span><span id="settings-profile-name"></span></h3>
-        <button id="switch-profile-button" type="button">Switch player</button>
+        <h3 id="settings-profile-heading" class="active-profile-name" tabindex="-1"><span id="settings-profile-avatar" aria-hidden="true"></span><span id="settings-profile-name"></span></h3>
+        <div class="settings-profile-actions">
+          <button id="switch-profile-button" type="button">Switch player</button>
+          <button id="edit-profile-button" type="button">Edit profile</button>
+          <button id="reset-profile-progress-button" class="reset-profile-progress-button" type="button">Reset progress</button>
+        </div>
       </section>
     </aside>
     <main class="app-shell">

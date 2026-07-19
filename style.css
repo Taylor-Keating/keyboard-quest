@@ -99,7 +99,11 @@ body.profile-gate-open { overflow: hidden; }
 .settings-label { margin: 0 0 6px; color: #687080; font-size: 0.78rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; }
 .active-profile-name { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
 .active-profile-name span:first-child { font-size: 1.65rem; }
-.settings-profile button { width: 100%; padding: 10px 16px; }
+.settings-profile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.settings-profile-actions button { width: 100%; padding: 10px 12px; }
+.reset-profile-progress-button { grid-column: 1 / -1; color: #8f1734; background: #ffe0e7; }
+.reset-profile-progress-button:hover,
+.reset-profile-progress-button:focus-visible { color: white; background: #bb2143; }
 
 .profile-gate {
   position: fixed;
@@ -213,6 +217,53 @@ body.profile-gate-open { overflow: hidden; }
 .avatar-options input:checked + span { border-color: #6a4ee6; background: #f2efff; box-shadow: 0 0 0 2px #d8c5ff; }
 .avatar-options input:focus-visible + span { outline: 3px solid #172033; outline-offset: 3px; }
 .profile-form-error { min-height: 1.4em; margin: 12px 0 4px; color: #bb2143; font-weight: bold; }
+
+.confirmation-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 24px;
+  background: rgba(9, 17, 31, 0.82);
+  backdrop-filter: blur(8px);
+}
+.confirmation-dialog[hidden] { display: none; }
+.confirmation-card {
+  width: min(100%, 520px);
+  padding: 32px;
+  border: 4px solid #172033;
+  border-radius: 24px;
+  color: #172033;
+  background: white;
+  box-shadow: 10px 10px 0 #172033;
+  text-align: center;
+}
+.warning-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  place-items: center;
+  border: 4px solid #8f1734;
+  border-radius: 50%;
+  color: white;
+  background: #bb2143;
+  font-size: 2rem;
+  font-weight: bold;
+}
+.confirmation-card .eyebrow { margin-bottom: 7px; color: #bb2143; }
+.confirmation-card h2 { margin-bottom: 10px; }
+.confirmation-card > p:not(.warning-icon):not(.eyebrow) { line-height: 1.5; }
+.confirmation-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.danger-button { color: white; background: #bb2143; }
+.danger-button:hover,
+.danger-button:focus-visible { background: #8f1734; }
+.edit-profile-card { text-align: left; }
+.edit-profile-card > .eyebrow,
+.edit-profile-card > h2 { text-align: center; }
+.edit-profile-card .profile-name-field { margin-top: 22px; }
 
 .lesson-card,
 .journey,
@@ -568,6 +619,16 @@ body[data-theme="rebel-royal"] .mistake-letter,
 body[data-theme="rebel-royal"] .setup-error { color: #ff6c92 !important; }
 body[data-theme="rebel-royal"] .settings-profile { border-color: #63516d; }
 body[data-theme="rebel-royal"] .settings-label { color: #cfc2d8; }
+body[data-theme="rebel-royal"] .reset-profile-progress-button { color: #ffd8e2; background: #61213a; }
+body[data-theme="rebel-royal"] .confirmation-card {
+  border-color: #d4a83e;
+  color: #f8f1ff;
+  background: linear-gradient(145deg, #2c1742, #1b132c);
+  box-shadow: 10px 10px 0 #08050d;
+}
+body[data-theme="rebel-royal"] .danger-button,
+body[data-theme="rebel-royal"] .danger-button:hover,
+body[data-theme="rebel-royal"] .danger-button:focus-visible { color: white; background: #bb2143; }
 body[data-theme="rebel-royal"] .profile-gate { background: rgba(8, 4, 14, 0.82); }
 body[data-theme="rebel-royal"] .profile-panel {
   border-color: #d4a83e;
@@ -682,6 +743,16 @@ body[data-theme="shark"] .mistake-letter,
 body[data-theme="shark"] .setup-error { color: #c52342 !important; }
 body[data-theme="shark"] .settings-profile { border-color: #79b7c5; }
 body[data-theme="shark"] .settings-label { color: #476673; }
+body[data-theme="shark"] .reset-profile-progress-button { color: #8f1734; background: #ffdce4; }
+body[data-theme="shark"] .confirmation-card {
+  border-color: #092f40;
+  color: #092232;
+  background: linear-gradient(145deg, #effcff, #beeaf2);
+  box-shadow: 10px 10px 0 #03141f;
+}
+body[data-theme="shark"] .danger-button,
+body[data-theme="shark"] .danger-button:hover,
+body[data-theme="shark"] .danger-button:focus-visible { color: white; background: #bb2143; }
 body[data-theme="shark"] .profile-gate { background: rgba(2, 20, 31, 0.82); }
 body[data-theme="shark"] .profile-panel {
   border-color: #092f40;
