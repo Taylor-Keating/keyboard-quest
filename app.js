@@ -117,6 +117,11 @@ function drawLesson() {
   drawFingerGuide();
 }
 
+function scrollTo(element) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+}
+
 function drawFingerGuide() {
   const practice = currentPractice();
   const missionKeys = new Set(practice.filter((key) => key !== " "));
@@ -140,7 +145,7 @@ function drawFingerGuide() {
   keyboardGuideElement.innerHTML = `${letterRows}<div class="keyboard-space-row"><span class="keyboard-key keyboard-space ${spaceIsNext}">SPACE</span></div>`;
 }
 
-function startCurrentMission() {
+function startCurrentMission(shouldScroll = false) {
   position = 0;
   waitingToContinue = false;
   continueButton.hidden = true;
@@ -153,6 +158,7 @@ function startCurrentMission() {
   waitingToStartPractice = Boolean(currentMission().learning);
   practiceAreaElement.hidden = waitingToStartPractice;
   startPracticeButton.hidden = !waitingToStartPractice;
+  if (shouldScroll) scrollTo(learningCardElement);
 }
 
 function startPractice() {
@@ -160,21 +166,22 @@ function startPractice() {
   practiceAreaElement.hidden = false;
   startPracticeButton.hidden = true;
   startPracticeButton.blur();
+  scrollTo(practiceAreaElement);
 }
 
-function loadLesson(lessonId) {
+function loadLesson(lessonId, shouldScroll = true) {
   currentLesson = QUEST_LESSONS.find((lesson) => lesson.id === lessonId);
   missionIndex = 0;
   objectiveLabelElement.textContent = `Objective ${QUEST_LESSONS.indexOf(currentLesson) + 1} · Keyboard skills`;
   lessonTitleElement.textContent = currentLesson.title;
   lessonDescriptionElement.textContent = currentLesson.description;
   drawQuestMap();
-  startCurrentMission();
+  startCurrentMission(shouldScroll);
 }
 
 function restartMission() {
   restartButton.blur();
-  startCurrentMission();
+  startCurrentMission(true);
 }
 
 function completeCurrentMission() {
@@ -216,7 +223,7 @@ document.addEventListener("keydown", (event) => {
   if (waitingToContinue && isContinueKey) {
     event.preventDefault();
     missionIndex += 1;
-    startCurrentMission();
+    startCurrentMission(true);
     return;
   }
 
@@ -251,7 +258,7 @@ restartButton.addEventListener("click", restartMission);
 continueButton.addEventListener("click", () => {
   missionIndex += 1;
   continueButton.blur();
-  startCurrentMission();
+  startCurrentMission(true);
 });
 startPracticeButton.addEventListener("click", startPractice);
 fullColorToggle.checked = showsFullFingerColors;
@@ -266,4 +273,4 @@ nextChapterButton.addEventListener("click", () => {
 });
 
 drawProgress();
-loadLesson(currentLesson.id);
+loadLesson(currentLesson.id, false);

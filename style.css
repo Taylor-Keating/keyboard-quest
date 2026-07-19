@@ -24,6 +24,7 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
 .lesson-card { text-align: center; }
 
 .learning-card {
+  scroll-margin-top: 24px;
   margin: 24px 0;
   padding: 24px;
   border: 3px solid #172033;
@@ -140,6 +141,7 @@ h2, h3 { margin-top: 0; }
 .keyboard-space-row { display: flex; justify-content: center; padding-top: 4px; }
 
 .keyboard-key {
+  position: relative;
   display: grid;
   min-width: 0;
   aspect-ratio: 1.2;
@@ -165,7 +167,7 @@ h2, h3 { margin-top: 0; }
 .finger-left-middle, .finger-right-middle { background: #bdebbf; }
 .finger-left-index, .finger-right-index { background: #b9dcff; }
 
-.exercise { margin: 32px 0; padding: 24px; border-radius: 16px; background: #f2efff; }
+.exercise { scroll-margin-top: 24px; margin: 32px 0; padding: 24px; border-radius: 16px; background: #f2efff; }
 .mission-note { margin: -4px 0 12px; font-weight: bold; }
 .mission-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
 
