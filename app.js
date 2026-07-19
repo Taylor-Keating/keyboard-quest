@@ -8,6 +8,9 @@ let missionIndex = 0;
 let position = 0;
 let waitingToContinue = false;
 let waitingToStartPractice = false;
+let mistakeCount = 0;
+let attemptCount = 0;
+let missionStartedAt = null;
 
 const targetElement = document.querySelector("#target");
 const feedbackElement = document.querySelector("#feedback");
@@ -21,6 +24,11 @@ const lessonDescriptionElement = document.querySelector("#lesson-description");
 const progressTextElement = document.querySelector("#progress-text");
 const missionHeadingElement = document.querySelector("#exercise-heading");
 const missionNoteElement = document.querySelector("#mission-note");
+const missionResultsElement = document.querySelector("#mission-results");
+const accuracyResultElement = document.querySelector("#accuracy-result");
+const mistakesResultElement = document.querySelector("#mistakes-result");
+const paceResultElement = document.querySelector("#pace-result");
+const resultsMessageElement = document.querySelector("#results-message");
 const learningCardElement = document.querySelector("#learning-card");
 const learningPhaseElement = document.querySelector("#learning-phase");
 const learningHeadingElement = document.querySelector("#learning-heading");
@@ -122,6 +130,25 @@ function scrollTo(element) {
   element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
 }
 
+function drawMissionResults() {
+  const correctKeys = currentPractice().length;
+  const accuracy = Math.round((correctKeys / attemptCount) * 100);
+  const elapsedMinutes = Math.max(Date.now() - missionStartedAt, 1000) / 60000;
+  const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
+
+  accuracyResultElement.textContent = `${accuracy}%`;
+  mistakesResultElement.textContent = mistakeCount;
+  paceResultElement.textContent = keysPerMinute;
+  resultsMessageElement.textContent = accuracy === 100
+    ? "Perfect accuracy!"
+    : accuracy >= 90
+      ? "Great control!"
+      : accuracy >= 75
+        ? "Nice work. A slower rhythm may make the next run even smoother."
+        : "Good persistence. Try the mission again when you want another practice run.";
+  missionResultsElement.hidden = false;
+}
+
 function drawFingerGuide() {
   const practice = currentPractice();
   const missionKeys = new Set(practice.filter((key) => key !== " "));
@@ -147,11 +174,15 @@ function drawFingerGuide() {
 
 function startCurrentMission(shouldScroll = false) {
   position = 0;
+  mistakeCount = 0;
+  attemptCount = 0;
+  missionStartedAt = null;
   waitingToContinue = false;
   continueButton.hidden = true;
   nextChapterButton.hidden = true;
   feedbackElement.textContent = "Press the first letter when you are ready.";
   feedbackElement.classList.remove("mistake");
+  missionResultsElement.hidden = true;
   drawMissionHeading();
   drawLearningContent();
   drawLesson();
@@ -185,6 +216,8 @@ function restartMission() {
 }
 
 function completeCurrentMission() {
+  drawMissionResults();
+  requestAnimationFrame(() => scrollTo(missionResultsElement));
   const isFinalMission = missionIndex === currentLesson.missions.length - 1;
   if (isFinalMission) {
     completeCurrentLesson();
@@ -239,6 +272,8 @@ document.addEventListener("keydown", (event) => {
   const practice = currentPractice();
   if (event.key.length !== 1 || waitingToStartPractice || waitingToContinue || position === practice.length) return;
 
+  if (missionStartedAt === null) missionStartedAt = Date.now();
+  attemptCount += 1;
   const typedLetter = event.key.toLowerCase();
   const expectedLetter = practice[position];
   if (typedLetter === expectedLetter) {
@@ -248,6 +283,7 @@ document.addEventListener("keydown", (event) => {
     else feedbackElement.textContent = "Nice! Keep going.";
     drawLesson();
   } else {
+    mistakeCount += 1;
     const hint = expectedLetter === " " ? "the space bar" : expectedLetter.toUpperCase();
     feedbackElement.textContent = `Almost! Try ${hint}.`;
     feedbackElement.classList.add("mistake");

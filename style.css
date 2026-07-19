@@ -188,6 +188,15 @@ h2, h3 { margin-top: 0; }
 .feedback { font-weight: bold; min-height: 1.5em; }
 .mistake { color: #bb2143; }
 
+.mission-results { scroll-margin-top: 24px; margin-top: 20px; padding: 18px; border: 3px solid #172033; border-radius: 14px; background: white; }
+.mission-results h4 { margin: 0 0 14px; font-size: 1.1rem; }
+.result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.result-grid p { display: grid; gap: 4px; margin: 0; padding: 10px 6px; border-radius: 10px; background: #e9f8fc; }
+.result-grid strong { color: #4b3aa8; font-size: 1.45rem; }
+.result-grid span { font-size: 0.78rem; font-weight: bold; }
+.results-message { margin: 16px 0 4px; font-weight: bold; }
+.pace-note { margin: 4px 0 0; color: #687080; font-size: 0.82rem; line-height: 1.35; }
+
 button {
   cursor: pointer;
   border: 3px solid #172033;
@@ -206,4 +215,5 @@ button:hover, button:focus-visible { background: #ffbf3f; }
   .section-heading { display: block; }
   .section-heading p { margin-top: 6px; }
   .finger-guide { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
 }
