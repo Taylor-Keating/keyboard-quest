@@ -8,6 +8,7 @@ let missionIndex = 0;
 let position = 0;
 let waitingToContinue = false;
 let waitingToStartPractice = false;
+let activeMode = "learn";
 let mistakeCount = 0;
 let attemptCount = 0;
 let missionStartedAt = null;
@@ -246,6 +247,11 @@ function completeCurrentLesson() {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (activeMode !== "learn") {
+    handleChallengeKey(event);
+    return;
+  }
+
   const isContinueKey = event.key === "Enter" || event.key === " ";
   if (waitingToStartPractice && isContinueKey) {
     event.preventDefault();

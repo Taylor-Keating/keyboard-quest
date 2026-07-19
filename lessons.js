@@ -59,11 +59,11 @@ const QUEST_LESSONS = [
   {
     id: "home-row",
     title: "Home-Row Team",
-    description: "Bring A, S, D, K, L, and ; into the team.",
+    description: "Learn every home-row key, including the index-finger reaches to G and H.",
     missions: [
-      { phase: "Lesson", title: "Left-hand team", practice: "a s d f", note: "One finger per key: pinky, ring, middle, then index.", learning: { heading: "Fill in the left home row", copy: "Your left hand has four home keys. Each finger owns one key.", steps: ["Pinky rests on A.", "Ring finger rests on S.", "Middle finger rests on D; index finger returns to F."], goal: "Goal: press each key with its resting finger." } },
-      { phase: "Application", title: "Right-hand team", practice: "j k l ;", note: "Mirror the pattern with your right hand.", learning: { heading: "Fill in the right home row", copy: "Your right hand mirrors the left: index, middle, ring, then pinky.", steps: ["Index rests on J.", "Middle rests on K and ring finger rests on L.", "Pinky rests on ;."], goal: "Goal: keep each finger paired with its home key." } },
-      { phase: "Mastery", title: "Whole home row", practice: "a s d f j k l ;", note: "Travel across the row, then settle your hands back home.", learning: { heading: "Cross the whole home row", copy: "Use all eight home keys in one calm sweep.", steps: ["Keep thumbs relaxed over the space bar.", "Let each finger press only its own key.", "End with both index fingers back on F and J."], goal: "Mastery goal: travel across the row without looking down." } },
+      { phase: "Lesson", title: "Left-hand team", practice: "a s d f g", note: "Your left index finger rests on F and also reaches to G.", learning: { heading: "Fill in the left home row", copy: "Your left hand has four resting keys, and your index finger also reaches one key inward.", steps: ["Pinky rests on A; ring finger rests on S.", "Middle finger rests on D; index finger rests on F.", "Reach your left index finger from F to G, then return to F."], goal: "Goal: press A through G with the assigned left-hand fingers." } },
+      { phase: "Application", title: "Right-hand team", practice: "h j k l ;", note: "Your right index finger rests on J and also reaches to H.", learning: { heading: "Fill in the right home row", copy: "Your right hand mirrors the left, with the index finger covering one extra key inward.", steps: ["Reach your right index finger from J to H, then return to J.", "Middle rests on K and ring finger rests on L.", "Pinky rests on ;."], goal: "Goal: press H through ; with the assigned right-hand fingers." } },
+      { phase: "Mastery", title: "Whole home row", practice: "a s d f g h j k l ;", note: "Travel across every home-row key, then settle your hands back home.", learning: { heading: "Cross the whole home row", copy: "Use all ten home-row keys in one calm sweep.", steps: ["Keep thumbs relaxed over the space bar.", "Use the left index for F and G; use the right index for H and J.", "End with both index fingers back on F and J."], goal: "Mastery goal: cross the complete home row without looking down." } },
     ],
   },
   {

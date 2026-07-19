@@ -14,15 +14,21 @@
         <p class="instructions">Complete small missions to light the path across the keyboard.</p>
       </header>
 
-      <section class="journey" aria-labelledby="journey-heading">
+      <nav class="mode-switcher" aria-label="Choose an activity mode">
+        <button id="learn-mode-button" class="mode-button active" type="button" aria-pressed="true">Learn</button>
+        <button id="challenge-mode-button" class="mode-button" type="button" aria-pressed="false">Challenge</button>
+      </nav>
+
+      <div id="learn-mode">
+        <section class="journey" aria-labelledby="journey-heading">
         <div class="section-heading">
           <h2 id="journey-heading">Your journey</h2>
           <p id="progress-text"><span aria-hidden="true">✦</span> 0 of 6 objectives complete</p>
         </div>
         <ol id="quest-map" class="quest-map"></ol>
-      </section>
+        </section>
 
-      <section class="lesson-card" aria-labelledby="lesson-title">
+        <section class="lesson-card" aria-labelledby="lesson-title">
         <p id="objective-label" class="eyebrow">Objective 1 · Home row</p>
         <h2 id="lesson-title">Home-Row Anchors</h2>
         <p id="lesson-description" class="instructions"></p>
@@ -74,10 +80,92 @@
             <button id="restart-button" type="button">Restart mission</button>
           </div>
         </div>
-      </section>
+        </section>
+      </div>
+
+      <div id="challenge-mode" hidden>
+        <section id="challenge-setup" class="challenge-card" aria-labelledby="challenge-heading">
+          <p class="eyebrow">Challenge mode</p>
+          <h2 id="challenge-heading">Build your challenge</h2>
+          <p class="instructions">Choose a level preset, then adjust any key groups you want to practice.</p>
+
+          <div class="level-presets" aria-label="Challenge level presets">
+            <button class="level-button selected" type="button" data-challenge-level="1" aria-pressed="true">Level 1</button>
+            <button class="level-button" type="button" data-challenge-level="2" aria-pressed="false">Level 2</button>
+            <button class="level-button" type="button" data-challenge-level="3" aria-pressed="false">Level 3</button>
+            <button class="level-button" type="button" data-challenge-level="4" aria-pressed="false">Level 4</button>
+            <button class="level-button" type="button" data-challenge-level="5" aria-pressed="false">Level 5</button>
+            <button class="level-button" type="button" data-challenge-level="6" aria-pressed="false">Level 6</button>
+          </div>
+
+          <fieldset class="challenge-options">
+            <legend>Key groups</legend>
+            <label><input type="checkbox" name="challenge-keys" value="anchors" checked /> <span><strong>Anchors</strong> F J</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="home-row" /> <span><strong>Home row</strong> A S D G H K L ;</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="inner-sky" /> <span><strong>Inner sky</strong> E R T Y U I</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="outer-sky" /> <span><strong>Outer sky</strong> Q W O P</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="inner-cave" /> <span><strong>Inner cave</strong> C V B N M</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="outer-cave" /> <span><strong>Outer cave</strong> Z X , . /</span></label>
+          </fieldset>
+
+          <fieldset class="space-option">
+            <legend>Spacing</legend>
+            <label>
+              <input id="challenge-spaces" type="checkbox" checked />
+              <span><strong>Include the Space Bar</strong> Adds word-like breaks between groups of keys</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="duration-options">
+            <legend>Challenge length</legend>
+            <label><input type="radio" name="challenge-duration" value="0" checked /> 40 keys</label>
+            <label><input type="radio" name="challenge-duration" value="30" /> 30 seconds</label>
+            <label><input type="radio" name="challenge-duration" value="60" /> 1 minute</label>
+            <label><input type="radio" name="challenge-duration" value="120" /> 2 minutes</label>
+          </fieldset>
+
+          <div id="challenge-keyboard-guide" class="keyboard-guide challenge-keyboard" aria-label="Keys included in this challenge"></div>
+          <p id="challenge-setup-error" class="setup-error" aria-live="polite"></p>
+          <button id="start-challenge-button" type="button">Start challenge</button>
+        </section>
+
+        <section id="challenge-play" class="challenge-card" aria-labelledby="challenge-play-heading" hidden>
+          <p class="eyebrow">Challenge in progress</p>
+          <h2 id="challenge-play-heading">Keep a steady rhythm</h2>
+          <div class="live-stats" aria-live="polite">
+            <p><strong id="challenge-time">40 keys</strong><span>Remaining</span></p>
+            <p><strong id="challenge-mistakes">0</strong><span>Mistakes</span></p>
+            <p><strong id="challenge-streak">0</strong><span>Best streak</span></p>
+          </div>
+          <p id="challenge-target" class="target challenge-target" aria-label="Challenge keys to type">
+            <span id="challenge-lines-track" class="challenge-lines-track"></span>
+          </p>
+          <p id="challenge-feedback" class="feedback">Press the first key when you are ready.</p>
+          <div class="mission-actions">
+            <button id="end-challenge-button" type="button">End challenge</button>
+          </div>
+        </section>
+
+        <section id="challenge-results" class="challenge-card" aria-labelledby="challenge-results-heading" hidden>
+          <p class="eyebrow">Challenge complete</p>
+          <h2 id="challenge-results-heading">Your results</h2>
+          <div class="challenge-result-grid">
+            <p><strong id="challenge-accuracy-result">100%</strong><span>Accuracy</span></p>
+            <p><strong id="challenge-mistakes-result">0</strong><span>Mistakes</span></p>
+            <p><strong id="challenge-pace-result">0</strong><span>Keys per minute</span></p>
+            <p><strong id="challenge-streak-result">0</strong><span>Best streak</span></p>
+          </div>
+          <p id="challenge-results-message" class="results-message"></p>
+          <div class="mission-actions">
+            <button id="retry-challenge-button" type="button">Try again</button>
+            <button id="change-challenge-button" type="button">Change challenge</button>
+          </div>
+        </section>
+      </div>
     </main>
 
     <script src="lessons.js"></script>
     <script src="app.js"></script>
+    <script src="challenge.js"></script>
   </body>
 </html>

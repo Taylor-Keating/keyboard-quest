@@ -8,11 +8,16 @@
 
 body { min-height: 100vh; margin: 0; padding: 24px; }
 
-.app-shell { width: min(100%, 680px); margin: 0 auto; }
+.app-shell { width: min(100%, 760px); margin: 0 auto; }
 .app-header { padding: 12px 12px 24px; text-align: center; }
 
+.mode-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 auto 28px; padding: 6px; border: 3px solid #172033; border-radius: 999px; background: white; box-shadow: 5px 5px 0 #172033; }
+.mode-button { border: 0; background: transparent; }
+.mode-button.active { background: #6a4ee6; color: white; }
+
 .lesson-card,
-.journey {
+.journey,
+.challenge-card {
   border: 4px solid #172033;
   border-radius: 24px;
   background: white;
@@ -22,6 +27,48 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
 
 .journey { margin-bottom: 32px; background: #fff8d8; }
 .lesson-card { text-align: center; }
+.challenge-card { scroll-margin-top: 24px; margin-bottom: 32px; text-align: center; }
+
+.level-presets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin: 22px 0; }
+.level-button { padding: 10px 5px; border-radius: 12px; background: #f2efff; font-size: 0.85rem; }
+.level-button.selected { background: #6a4ee6; color: white; }
+
+.challenge-options,
+.duration-options,
+.space-option { margin: 20px 0; padding: 18px; border: 3px solid #172033; border-radius: 16px; text-align: left; }
+.challenge-options legend,
+.duration-options legend,
+.space-option legend { padding: 0 8px; font-weight: bold; }
+.challenge-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.challenge-options label { display: flex; align-items: start; gap: 8px; padding: 10px; border-radius: 10px; background: #f4f5f7; line-height: 1.35; }
+.challenge-options input,
+.duration-options input,
+.space-option input { width: 18px; height: 18px; flex: none; accent-color: #6a4ee6; }
+.challenge-options strong { display: block; }
+.space-option label { display: flex; align-items: start; gap: 9px; line-height: 1.4; }
+.space-option strong { display: block; }
+.duration-options { display: flex; flex-wrap: wrap; gap: 14px 20px; }
+.duration-options label { display: flex; align-items: center; gap: 6px; font-weight: bold; }
+.challenge-keyboard { margin: 24px auto; padding: 18px; border: 3px solid #172033; border-radius: 16px; background: #e9f8fc; }
+.setup-error { min-height: 1.4em; color: #bb2143; font-weight: bold; }
+
+.live-stats,
+.challenge-result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
+.live-stats p,
+.challenge-result-grid p { display: grid; gap: 4px; margin: 0; padding: 14px 8px; border-radius: 12px; background: #e9f8fc; }
+.live-stats strong,
+.challenge-result-grid strong { color: #4b3aa8; font-size: 1.5rem; }
+.live-stats span,
+.challenge-result-grid span { font-size: 0.8rem; font-weight: bold; }
+.challenge-result-grid { grid-template-columns: repeat(4, 1fr); }
+.challenge-target { display: block; min-height: 8.8em; overflow: hidden; padding: 18px 20px; border-radius: 16px; background: #f2efff; font-size: clamp(1.65rem, 6vw, 3rem); }
+.challenge-lines-track { display: block; transition: transform 700ms cubic-bezier(0.22, 0.7, 0.25, 1); will-change: transform; }
+.challenge-lines-track.no-transition { transition: none; }
+.challenge-line { display: flex; min-height: 1.65em; align-items: center; justify-content: center; gap: 0.12em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-lines-track { transition: none; }
+}
 
 .learning-card {
   scroll-margin-top: 24px;
@@ -211,9 +258,13 @@ button {
 button:hover, button:focus-visible { background: #ffbf3f; }
 
 @media (max-width: 520px) {
-  .lesson-card, .journey { padding: 24px; }
+  .lesson-card, .journey, .challenge-card { padding: 24px; }
   .section-heading { display: block; }
   .section-heading p { margin-top: 6px; }
   .finger-guide { grid-template-columns: 1fr; }
   .result-grid { grid-template-columns: 1fr; }
+  .level-presets { grid-template-columns: repeat(4, 1fr); }
+  .challenge-options { grid-template-columns: 1fr; }
+  .live-stats { grid-template-columns: repeat(3, 1fr); }
+  .challenge-result-grid { grid-template-columns: 1fr 1fr; }
 }
