@@ -153,8 +153,12 @@ function drawMissionResults() {
 function drawFingerGuide() {
   const practice = currentPractice();
   const missionKeys = new Set(practice.filter((key) => key !== " "));
+  const showsEveryKey = showsFullFingerColors || currentLesson.showFullKeyboard;
   const nextKey = practice[position];
   const finger = KEY_FINGERS[nextKey];
+
+  fullColorToggle.checked = showsEveryKey;
+  fullColorToggle.disabled = Boolean(currentLesson.showFullKeyboard);
 
   if (position === practice.length) fingerCueElement.textContent = "Mission complete! Return your hands to home base.";
   else if (nextKey === " ") fingerCueElement.textContent = "Next: Space bar — use either thumb.";
@@ -165,7 +169,7 @@ function drawFingerGuide() {
       ${row.map((key) => {
         const fingerClass = `finger-${KEY_FINGERS[key].replace(" ", "-")}`;
         const activeClass = key === nextKey ? "active-key" : "";
-        const focusClass = missionKeys.has(key) ? "mission-key" : showsFullFingerColors ? "" : "not-in-mission-key";
+        const focusClass = missionKeys.has(key) ? "mission-key" : showsEveryKey ? "" : "not-in-mission-key";
         return `<span class="keyboard-key ${fingerClass} ${focusClass} ${activeClass}">${key.toUpperCase()}</span>`;
       }).join("")}
     </div>`).join("");

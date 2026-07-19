@@ -195,6 +195,7 @@ h2, h3 { margin-top: 0; }
 .color-toggle input:checked + .toggle-track { background: #6a4ee6; }
 .color-toggle input:checked + .toggle-track .toggle-knob { transform: translateX(18px); }
 .color-toggle input:focus-visible + .toggle-track { outline: 3px solid #172033; outline-offset: 3px; }
+.color-toggle:has(input:disabled) { opacity: 0.65; }
 
 .keyboard-guide { display: grid; gap: 5px; }
 .keyboard-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }

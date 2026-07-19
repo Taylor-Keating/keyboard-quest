@@ -110,6 +110,7 @@ const QUEST_LESSONS = [
     id: "word-builder",
     title: "Word Workshop",
     description: "Turn your new keys into short words.",
+    showFullKeyboard: true,
     missions: [
       { phase: "Lesson", title: "First words", practice: "sad dad", note: "Type each small word, then use either thumb for the space.", learning: { heading: "Connect letters into words", copy: "Words are just key patterns your fingers already know.", steps: ["Type one letter at a time.", "Use either thumb for the space.", "Return your fingers to home between words."], goal: "Goal: finish two short words accurately." } },
       { phase: "Application", title: "Home-row words", practice: "fall ask", note: "Let the letters flow while your fingers keep their places.", learning: { heading: "Build smooth word shapes", copy: "Keep your eyes on the word instead of chasing your fingers.", steps: ["Read the whole word first.", "Type steadily, not quickly.", "Use the space bar to separate the words."], goal: "Goal: type two words with a smooth pause at the space." } },
@@ -119,11 +120,12 @@ const QUEST_LESSONS = [
   {
     id: "launch",
     title: "Launch Challenge",
-    description: "Complete a mixed-key typing mission.",
+    description: "Combine the whole keyboard in phrases and a complete sentence.",
+    showFullKeyboard: true,
     missions: [
-      { phase: "Lesson", title: "Mixed-key warmup", practice: "fun run", note: "Use the finger guide to combine keys from different rows.", learning: { heading: "Mix your new reaches", copy: "Real typing moves between rows, then returns home.", steps: ["Notice which row each key uses.", "Follow the finger guide when you are unsure.", "Reset to home after every word."], goal: "Goal: type two mixed-row words accurately." } },
-      { phase: "Application", title: "Flight check", practice: "sad fun run", note: "Mix familiar words and stay calm between each key.", learning: { heading: "Keep your route steady", copy: "The words change, but your finger assignments stay the same.", steps: ["Read ahead to the next word.", "Use a thumb for every space.", "Stay relaxed if you make a mistake."], goal: "Goal: keep your hands on home base while changing words." } },
-      { phase: "Mastery", title: "Launch challenge", practice: "fun dad sad run", note: "A final smooth run—accuracy first, then speed.", learning: { heading: "Complete your keyboard journey", copy: "This challenge blends home, top, and bottom-row practice into a short phrase.", steps: ["Start slowly.", "Trust your finger plan.", "Celebrate accurate typing, then try again for smoother rhythm."], goal: "Mastery goal: finish the mixed phrase with confident control." } },
+      { phase: "Lesson", title: "Sentence launch", practice: "the quick brown fox", note: "Use the full keyboard map while you connect four different words.", learning: { heading: "Build the first half", copy: "Longer typing asks you to look ahead while your fingers travel between every keyboard row.", steps: ["Read one word ahead before you begin.", "Use a thumb for each space.", "Return to home base whenever your hands lose their place."], goal: "Goal: type the opening phrase accurately and smoothly." } },
+      { phase: "Application", title: "Flight path", practice: "jumps over the lazy dog", note: "Keep a calm rhythm through five words with very different letter patterns.", learning: { heading: "Build the second half", copy: "This phrase adds less common reaches like J, V, Z, and Y.", steps: ["Let accuracy set your pace.", "Keep your eyes on the next word instead of your hands.", "Pause at a space if you need to reset on F and J."], goal: "Goal: move confidently between common and less common letters." } },
+      { phase: "Mastery", title: "Full launch", practice: "the quick brown fox jumps over the lazy dog.", note: "One complete sentence uses every letter of the alphabet—accuracy first, then rhythm.", learning: { heading: "Complete your keyboard journey", copy: "The final mission combines every letter, repeated spaces, and a period in one full sentence.", steps: ["Read ahead without rushing.", "Trust the finger assignments you practiced.", "Finish with the period, then check your results."], goal: "Mastery goal: type the full sentence with confident, accurate control." } },
     ],
   },
 ];
