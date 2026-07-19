@@ -7,6 +7,7 @@
 * { box-sizing: border-box; }
 
 body { min-height: 100vh; margin: 0; padding: 24px; }
+body.profile-gate-open { overflow: hidden; }
 
 .app-shell { width: min(100%, 760px); margin: 0 auto; }
 .app-header { padding: 12px 12px 24px; text-align: center; }
@@ -50,6 +51,8 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
   border-radius: 20px;
   background: white;
   box-shadow: 8px 8px 0 #172033;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 .settings-panel[hidden] { display: none; }
 .settings-heading-row { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
@@ -91,6 +94,125 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
     linear-gradient(145deg, transparent 42%, #f6f2df 43% 54%, transparent 55%) 0 0 / 18px 18px,
     radial-gradient(ellipse at center, #061b27 0 38%, #0b7897 40% 64%, #718f9b 66%);
 }
+
+.settings-profile { margin-top: 20px; padding-top: 18px; border-top: 3px solid #c9ced6; }
+.settings-label { margin: 0 0 6px; color: #687080; font-size: 0.78rem; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; }
+.active-profile-name { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+.active-profile-name span:first-child { font-size: 1.65rem; }
+.settings-profile button { width: 100%; padding: 10px 16px; }
+
+.profile-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  align-items: start;
+  overflow-y: auto;
+  padding: 28px;
+  background: rgba(9, 17, 31, 0.78);
+  backdrop-filter: blur(8px);
+}
+.profile-gate[hidden] { display: none; }
+.profile-panel {
+  width: min(100%, 760px);
+  margin: auto;
+  padding: 34px;
+  border: 4px solid #172033;
+  border-radius: 26px;
+  color: #172033;
+  background: #f7fcff;
+  box-shadow: 10px 10px 0 #172033;
+}
+.profile-panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
+.profile-panel-heading .eyebrow { margin: 0; }
+.profile-panel-heading h1 { margin: 7px 0; font-size: clamp(2rem, 7vw, 3.3rem); }
+.profile-panel-heading .instructions { margin-bottom: 0; }
+.close-profile-gate-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  padding: 0 0 3px;
+  border-radius: 50%;
+  background: #f2efff;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+.profile-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0; }
+.profile-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  overflow: hidden;
+  border: 3px solid #172033;
+  border-radius: 16px;
+  background: white;
+}
+.profile-card.active { border-color: #6a4ee6; box-shadow: 0 0 0 3px #d8c5ff; }
+.profile-select-button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 13px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.profile-select-button:hover,
+.profile-select-button:focus-visible { background: #f2efff; }
+.profile-avatar { font-size: 2.25rem; }
+.profile-details { min-width: 0; }
+.profile-details strong,
+.profile-details small { display: block; }
+.profile-details strong { overflow: hidden; font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
+.profile-details small { margin-top: 3px; color: #687080; font-size: 0.75rem; line-height: 1.25; }
+.delete-profile-button {
+  width: 42px;
+  padding: 0 0 3px;
+  border: 0;
+  border-left: 2px solid #d8dce2;
+  border-radius: 0;
+  color: #687080;
+  background: #f4f5f7;
+  font-size: 1.4rem;
+}
+.delete-profile-button:hover,
+.delete-profile-button:focus-visible { color: white; background: #bb2143; }
+.create-profile-form { margin-top: 28px; padding: 24px; border: 3px solid #172033; border-radius: 18px; background: #fff8d8; }
+.create-profile-form h2 { margin-bottom: 18px; }
+.profile-name-field { display: grid; gap: 7px; font-weight: bold; }
+.profile-name-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid #172033;
+  border-radius: 12px;
+  color: #172033;
+  background: white;
+  font: inherit;
+  font-size: 1.05rem;
+}
+.profile-name-field input:focus-visible { outline: 3px solid #6a4ee6; outline-offset: 3px; }
+.avatar-options { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0 0; padding: 0; border: 0; }
+.avatar-options legend { width: 100%; margin-bottom: 9px; font-weight: bold; }
+.avatar-options label { cursor: pointer; }
+.avatar-options input { position: absolute; opacity: 0; }
+.avatar-options span {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border: 3px solid #aeb4be;
+  border-radius: 14px;
+  background: white;
+  font-size: 1.65rem;
+}
+.avatar-options input:checked + span { border-color: #6a4ee6; background: #f2efff; box-shadow: 0 0 0 2px #d8c5ff; }
+.avatar-options input:focus-visible + span { outline: 3px solid #172033; outline-offset: 3px; }
+.profile-form-error { min-height: 1.4em; margin: 12px 0 4px; color: #bb2143; font-weight: bold; }
 
 .lesson-card,
 .journey,
@@ -444,6 +566,26 @@ body[data-theme="rebel-royal"] .completed-letter { color: #6fe29b; }
 body[data-theme="rebel-royal"] .mistake,
 body[data-theme="rebel-royal"] .mistake-letter,
 body[data-theme="rebel-royal"] .setup-error { color: #ff6c92 !important; }
+body[data-theme="rebel-royal"] .settings-profile { border-color: #63516d; }
+body[data-theme="rebel-royal"] .settings-label { color: #cfc2d8; }
+body[data-theme="rebel-royal"] .profile-gate { background: rgba(8, 4, 14, 0.82); }
+body[data-theme="rebel-royal"] .profile-panel {
+  border-color: #d4a83e;
+  color: #f8f1ff;
+  background: linear-gradient(145deg, #2c1742, #1b132c);
+  box-shadow: 10px 10px 0 #08050d;
+}
+body[data-theme="rebel-royal"] .profile-card { border-color: #8753a3; background: #241531; }
+body[data-theme="rebel-royal"] .profile-card.active { border-color: #b7ed67; box-shadow: 0 0 0 3px #4d5f33; }
+body[data-theme="rebel-royal"] .profile-select-button { color: #f8f1ff; background: transparent; }
+body[data-theme="rebel-royal"] .profile-select-button:hover,
+body[data-theme="rebel-royal"] .profile-select-button:focus-visible { background: #38204b; }
+body[data-theme="rebel-royal"] .profile-details small { color: #cfc2d8; }
+body[data-theme="rebel-royal"] .delete-profile-button { border-color: #4e3f57; color: #cfc2d8; background: #17131d; }
+body[data-theme="rebel-royal"] .create-profile-form { border-color: #8753a3; background: #21132f; }
+body[data-theme="rebel-royal"] .profile-name-field input { border-color: #8753a3; color: #f8f1ff; background: #160c24; }
+body[data-theme="rebel-royal"] .avatar-options span { border-color: #63516d; background: #241531; }
+body[data-theme="rebel-royal"] .avatar-options input:checked + span { border-color: #b7ed67; background: #38204b; box-shadow: 0 0 0 2px #4d5f33; }
 
 /* Shark turns the page into a playful underwater mouth without changing the exercises. */
 body[data-theme="shark"] {
@@ -538,6 +680,21 @@ body[data-theme="shark"] .pace-note { color: #476673; }
 body[data-theme="shark"] .mistake,
 body[data-theme="shark"] .mistake-letter,
 body[data-theme="shark"] .setup-error { color: #c52342 !important; }
+body[data-theme="shark"] .settings-profile { border-color: #79b7c5; }
+body[data-theme="shark"] .settings-label { color: #476673; }
+body[data-theme="shark"] .profile-gate { background: rgba(2, 20, 31, 0.82); }
+body[data-theme="shark"] .profile-panel {
+  border-color: #092f40;
+  color: #092232;
+  background: linear-gradient(145deg, #effcff, #beeaf2);
+  box-shadow: 10px 10px 0 #03141f;
+}
+body[data-theme="shark"] .profile-card.active { border-color: #087d9c; box-shadow: 0 0 0 3px #8bd8e5; }
+body[data-theme="shark"] .profile-select-button { background: transparent; }
+body[data-theme="shark"] .profile-select-button:hover,
+body[data-theme="shark"] .profile-select-button:focus-visible { background: #d5f2f6; }
+body[data-theme="shark"] .create-profile-form { border-color: #0b6079; background: #c9edf3; }
+body[data-theme="shark"] .avatar-options input:checked + span { border-color: #087d9c; background: #d5f2f6; box-shadow: 0 0 0 2px #8bd8e5; }
 
 @media (max-width: 520px) {
   .lesson-card, .journey, .challenge-card { padding: 24px; }
@@ -549,4 +706,7 @@ body[data-theme="shark"] .setup-error { color: #c52342 !important; }
   .challenge-options { grid-template-columns: 1fr; }
   .live-stats { grid-template-columns: 1fr 1fr; }
   .challenge-result-grid { grid-template-columns: 1fr 1fr; }
+  .profile-gate { padding: 14px; }
+  .profile-panel { padding: 24px; }
+  .profile-list { grid-template-columns: 1fr; }
 }

@@ -377,6 +377,7 @@ function finishChallenge(shouldScroll = true) {
   const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
   const paceBonus = Math.round(keysPerMinute * 10 * challengeLevelMultiplier * challengeOptionMultiplier);
   const finalScore = Math.max(0, challengeScore + paceBonus - challengePenaltyPoints);
+  recordProfileActivity({ type: "challenge", mistakes: challengeMistakes, keysPerMinute, score: finalScore });
 
   challengeAccuracyResultElement.textContent = `${accuracy}%`;
   challengeMistakesResultElement.textContent = challengeMistakes;

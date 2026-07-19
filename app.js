@@ -1,7 +1,7 @@
-const progressKey = "keyboard-quest-completed-objectives";
-const fingerColorKey = "keyboard-quest-show-all-finger-colors";
-const mistakeSoundKey = "keyboard-quest-mistake-sound";
-const themeKey = "keyboard-quest-theme";
+const progressKey = profileStorageKey("keyboard-quest-completed-objectives");
+const fingerColorKey = profileStorageKey("keyboard-quest-show-all-finger-colors");
+const mistakeSoundKey = profileStorageKey("keyboard-quest-mistake-sound");
+const themeKey = profileStorageKey("keyboard-quest-theme");
 const completedLessonIds = new Set(JSON.parse(localStorage.getItem(progressKey) || "[]"));
 let showsFullFingerColors = localStorage.getItem(fingerColorKey) === "true";
 let playsMistakeSound = localStorage.getItem(mistakeSoundKey) !== "false";
@@ -52,6 +52,7 @@ const settingsButton = document.querySelector("#settings-button");
 const settingsPanel = document.querySelector("#settings-panel");
 const closeSettingsButton = document.querySelector("#close-settings-button");
 const themeOptions = [...document.querySelectorAll('[name="app-theme"]')];
+const profileGateElement = document.querySelector("#profile-gate");
 
 function applyTheme(theme) {
   const availableThemes = ["classic", "rebel-royal", "shark"];
@@ -292,6 +293,7 @@ function drawMissionResults() {
   const accuracy = Math.round((correctKeys / attemptCount) * 100);
   const elapsedMinutes = Math.max(Date.now() - missionStartedAt, 1000) / 60000;
   const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
+  recordProfileActivity({ type: "mission", mistakes: mistakeCount, keysPerMinute });
 
   accuracyResultElement.textContent = `${accuracy}%`;
   mistakesResultElement.textContent = mistakeCount;
@@ -407,6 +409,8 @@ function completeCurrentLesson() {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (!profileGateElement.hidden) return;
+
   if (!settingsPanel.hidden) {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -489,7 +493,10 @@ applyTheme(selectedTheme);
 settingsButton.addEventListener("click", () => {
   setSettingsOpen(settingsPanel.hidden, !settingsPanel.hidden);
 });
-closeSettingsButton.addEventListener("click", () => setSettingsOpen(false, true));
+closeSettingsButton.addEventListener("click", () => {
+  setSettingsOpen(false);
+  closeSettingsButton.blur();
+});
 themeOptions.forEach((option) => {
   option.addEventListener("change", () => applyTheme(option.value));
 });

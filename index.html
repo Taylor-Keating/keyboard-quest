@@ -7,6 +7,39 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <section id="profile-gate" class="profile-gate" role="dialog" aria-modal="true" aria-labelledby="profile-gate-heading" hidden>
+      <div class="profile-panel">
+        <div class="profile-panel-heading">
+          <div>
+            <p class="eyebrow">Keyboard Quest</p>
+            <h1 id="profile-gate-heading">Who’s typing today?</h1>
+            <p class="instructions">Choose your player so your progress and scores stay with you.</p>
+          </div>
+          <button id="close-profile-gate-button" class="close-profile-gate-button" type="button" aria-label="Close player chooser" title="Close player chooser" hidden>×</button>
+        </div>
+
+        <div id="profile-list" class="profile-list" aria-label="Player profiles"></div>
+
+        <form id="create-profile-form" class="create-profile-form">
+          <h2>Create a player</h2>
+          <label class="profile-name-field">
+            <span>Player name</span>
+            <input id="profile-name-input" name="profile-name" type="text" maxlength="18" autocomplete="off" required placeholder="Type a name" />
+          </label>
+          <fieldset class="avatar-options">
+            <legend>Choose an avatar</legend>
+            <label><input type="radio" name="profile-avatar" value="🦈" checked /><span aria-label="Shark">🦈</span></label>
+            <label><input type="radio" name="profile-avatar" value="🐉" /><span aria-label="Dragon">🐉</span></label>
+            <label><input type="radio" name="profile-avatar" value="🦄" /><span aria-label="Unicorn">🦄</span></label>
+            <label><input type="radio" name="profile-avatar" value="🦖" /><span aria-label="Dinosaur">🦖</span></label>
+            <label><input type="radio" name="profile-avatar" value="🐙" /><span aria-label="Octopus">🐙</span></label>
+            <label><input type="radio" name="profile-avatar" value="🚀" /><span aria-label="Rocket">🚀</span></label>
+          </fieldset>
+          <p id="profile-form-error" class="profile-form-error" aria-live="polite"></p>
+          <button type="submit">Create player</button>
+        </form>
+      </div>
+    </section>
     <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path class="speaker-shape" d="M4 9v6h4l5 4V5L8 9H4Z"></path>
@@ -45,6 +78,11 @@
           <span><strong>Shark</strong><small>Deep water with a toothy surprise</small></span>
         </label>
       </fieldset>
+      <section class="settings-profile" aria-labelledby="settings-profile-heading">
+        <p class="settings-label">Player</p>
+        <h3 id="settings-profile-heading" class="active-profile-name"><span id="settings-profile-avatar" aria-hidden="true"></span><span id="settings-profile-name"></span></h3>
+        <button id="switch-profile-button" type="button">Switch player</button>
+      </section>
     </aside>
     <main class="app-shell">
       <header class="app-header">
@@ -229,6 +267,7 @@
       </div>
     </main>
 
+    <script src="profiles.js"></script>
     <script src="lessons.js"></script>
     <script src="app.js"></script>
     <script src="challenge.js"></script>
