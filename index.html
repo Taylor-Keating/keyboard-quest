@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="speaker-shape" d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+        <path class="sound-waves" d="M16 8.5c1.3 1.3 1.3 5.7 0 7M18.5 6c2.7 2.7 2.7 9.3 0 12"></path>
+        <path class="mute-slash" d="M4 4l16 16"></path>
+      </svg>
+    </button>
     <main class="app-shell">
       <header class="app-header">
         <p class="eyebrow">Keyboard Quest</p>
@@ -18,7 +25,6 @@
         <button id="learn-mode-button" class="mode-button active" type="button" aria-pressed="true">Learn</button>
         <button id="challenge-mode-button" class="mode-button" type="button" aria-pressed="false">Challenge</button>
       </nav>
-
       <div id="learn-mode">
         <section class="journey" aria-labelledby="journey-heading">
         <div class="section-heading">

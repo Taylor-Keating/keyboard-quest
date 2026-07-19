@@ -1,7 +1,11 @@
 const progressKey = "keyboard-quest-completed-objectives";
 const fingerColorKey = "keyboard-quest-show-all-finger-colors";
+const mistakeSoundKey = "keyboard-quest-mistake-sound";
 const completedLessonIds = new Set(JSON.parse(localStorage.getItem(progressKey) || "[]"));
 let showsFullFingerColors = localStorage.getItem(fingerColorKey) === "true";
+let playsMistakeSound = localStorage.getItem(mistakeSoundKey) !== "false";
+let mistakeAudioContext = null;
+let lastMistakeSoundAt = 0;
 
 let currentLesson = QUEST_LESSONS.find((lesson) => !completedLessonIds.has(lesson.id)) || QUEST_LESSONS[0];
 let missionIndex = 0;
@@ -41,6 +45,7 @@ const practiceAreaElement = document.querySelector("#practice-area");
 const fingerCueElement = document.querySelector("#finger-cue");
 const keyboardGuideElement = document.querySelector("#keyboard-guide");
 const fullColorToggle = document.querySelector("#full-color-toggle");
+const mistakeSoundButton = document.querySelector("#mistake-sound-button");
 
 const KEYBOARD_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -65,6 +70,12 @@ function currentMission() {
 
 function currentPractice() {
   return Array.from(currentMission().practice);
+}
+
+function targetKeySpan(key, stateClass = "") {
+  const classes = [stateClass, key === " " ? "space-pill" : ""].filter(Boolean).join(" ");
+  const classAttribute = classes ? ` class="${classes}"` : "";
+  return `<span${classAttribute}>${key === " " ? "SPACE" : key}</span>`;
 }
 
 function isLessonUnlocked(lesson) {
@@ -118,10 +129,9 @@ function drawLearningContent() {
 function drawLesson() {
   const practice = currentPractice();
   targetElement.innerHTML = practice.map((letter, index) => {
-    const displayLetter = letter === " " ? "·" : letter;
-    if (index < position) return `<span class="completed-letter">${displayLetter}</span>`;
-    if (index === position) return `<span class="current-letter">${displayLetter}</span>`;
-    return `<span>${displayLetter}</span>`;
+    if (index < position) return targetKeySpan(letter, "completed-letter");
+    if (index === position) return targetKeySpan(letter, "current-letter");
+    return targetKeySpan(letter);
   }).join("");
   drawFingerGuide();
 }
@@ -129,6 +139,57 @@ function drawLesson() {
 function scrollTo(element) {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   element.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+}
+
+function playMistakeSound() {
+  if (!playsMistakeSound) return;
+  const soundRequestedAt = Date.now();
+  if (soundRequestedAt - lastMistakeSoundAt < 75) return;
+  lastMistakeSoundAt = soundRequestedAt;
+
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!mistakeAudioContext) mistakeAudioContext = new AudioContextClass();
+    if (mistakeAudioContext.state === "suspended") mistakeAudioContext.resume();
+
+    const now = mistakeAudioContext.currentTime;
+    const oscillator = mistakeAudioContext.createOscillator();
+    const gain = mistakeAudioContext.createGain();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(145, now);
+    oscillator.frequency.exponentialRampToValueAtTime(105, now + 0.065);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.032, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.085);
+    oscillator.connect(gain);
+    gain.connect(mistakeAudioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.09);
+  } catch {
+    // Typing practice still works if browser audio is unavailable.
+  }
+}
+
+function drawMistakeSoundButton() {
+  const isMuted = !playsMistakeSound;
+  const label = isMuted ? "Unmute mistake sounds" : "Mute mistake sounds";
+  mistakeSoundButton.classList.toggle("muted", isMuted);
+  mistakeSoundButton.setAttribute("aria-pressed", isMuted);
+  mistakeSoundButton.setAttribute("aria-label", label);
+  mistakeSoundButton.title = label;
+}
+
+function animateMistakeLetter(container) {
+  const currentLetter = container.querySelector(".current-letter");
+  if (!currentLetter) return;
+
+  currentLetter.classList.remove("mistake-letter");
+  void currentLetter.offsetWidth;
+  currentLetter.classList.add("mistake-letter");
+  currentLetter.addEventListener("animationend", () => {
+    currentLetter.classList.remove("mistake-letter");
+  }, { once: true });
 }
 
 function drawMissionResults() {
@@ -294,6 +355,8 @@ document.addEventListener("keydown", (event) => {
     drawLesson();
   } else {
     mistakeCount += 1;
+    playMistakeSound();
+    animateMistakeLetter(targetElement);
     const hint = expectedLetter === " " ? "the space bar" : expectedLetter.toUpperCase();
     feedbackElement.textContent = `Almost! Try ${hint}.`;
     feedbackElement.classList.add("mistake");
@@ -312,6 +375,12 @@ fullColorToggle.addEventListener("change", () => {
   showsFullFingerColors = fullColorToggle.checked;
   localStorage.setItem(fingerColorKey, showsFullFingerColors);
   drawFingerGuide();
+});
+drawMistakeSoundButton();
+mistakeSoundButton.addEventListener("click", () => {
+  playsMistakeSound = !playsMistakeSound;
+  localStorage.setItem(mistakeSoundKey, playsMistakeSound);
+  drawMistakeSoundButton();
 });
 nextChapterButton.addEventListener("click", () => {
   const nextLesson = QUEST_LESSONS[QUEST_LESSONS.indexOf(currentLesson) + 1];

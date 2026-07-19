@@ -15,6 +15,14 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
 .mode-button { border: 0; background: transparent; }
 .mode-button.active { background: #6a4ee6; color: white; }
 
+.sound-toggle-button { position: fixed; top: 14px; left: 14px; z-index: 10; display: grid; width: 46px; height: 46px; place-items: center; padding: 9px; border-radius: 50%; background: white; box-shadow: 4px 4px 0 #172033; }
+.sound-toggle-button svg { width: 100%; height: 100%; overflow: visible; }
+.speaker-shape { fill: currentColor; }
+.sound-waves, .mute-slash { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.mute-slash { display: none; stroke: #bb2143; stroke-width: 2.8; }
+.sound-toggle-button.muted .sound-waves { display: none; }
+.sound-toggle-button.muted .mute-slash { display: block; }
+
 .lesson-card,
 .journey,
 .challenge-card {
@@ -246,6 +254,12 @@ h2, h3 { margin-top: 0; }
 
 .current-letter { color: #6a4ee6; text-decoration: underline; }
 .completed-letter { color: #19935a; }
+.space-pill { align-self: center; min-width: 4.6em; padding: 0.3em 0.55em; border: 0.12em solid currentColor; border-radius: 999px; background: white; font-family: Arial, sans-serif; font-size: max(0.26em, 0.68rem); line-height: 1; letter-spacing: 0.04em; text-align: center; text-decoration: none; }
+.space-pill.current-letter { background: #d8c5ff; text-decoration: none; box-shadow: 0 0 0 3px #6a4ee6; }
+.space-pill.completed-letter { background: #e3f8e9; }
+.mistake-letter { color: #bb2143 !important; animation: mistake-letter-jitter 240ms ease-out; }
+@keyframes mistake-letter-jitter { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .mistake-letter { animation: none; } }
 .feedback { font-weight: bold; min-height: 1.5em; }
 .mistake { color: #bb2143; }
 

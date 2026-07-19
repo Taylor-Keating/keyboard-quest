@@ -237,10 +237,9 @@ function drawChallengeTarget() {
     const lineStart = offset;
     lines.push(`<span class="challenge-line">${lineKeys.map((key, keyOffset) => {
       const index = lineStart + keyOffset;
-      const displayKey = key === " " ? "·" : key;
-      if (index < challengePosition) return `<span class="completed-letter">${displayKey}</span>`;
-      if (index === challengePosition) return `<span class="current-letter">${displayKey}</span>`;
-      return `<span>${displayKey}</span>`;
+      if (index < challengePosition) return targetKeySpan(key, "completed-letter");
+      if (index === challengePosition) return targetKeySpan(key, "current-letter");
+      return targetKeySpan(key);
     }).join("")}</span>`);
   }
 
@@ -329,6 +328,7 @@ function handleChallengeKey(event) {
   challengeAttempts += 1;
   const expectedKey = challengeSequence[challengePosition];
   const typedKey = event.key;
+  const madeMistake = typedKey !== expectedKey;
 
   if (typedKey === expectedKey) {
     challengePosition += 1;
@@ -350,6 +350,7 @@ function handleChallengeKey(event) {
     challengeMistakes += 1;
     challengeCurrentStreak = 0;
     challengePenaltyPoints += 25;
+    playMistakeSound();
     const hint = expectedKey === " " ? "the space bar" : expectedKey.toUpperCase();
     challengeFeedbackElement.textContent = `Almost! Try ${hint}.`;
     challengeFeedbackElement.classList.add("mistake");
@@ -357,6 +358,7 @@ function handleChallengeKey(event) {
 
   updateChallengeStats();
   drawChallengeTarget();
+  if (madeMistake) animateMistakeLetter(challengeLinesTrackElement);
 }
 
 function finishChallenge(shouldScroll = true) {
