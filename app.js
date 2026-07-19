@@ -1,9 +1,11 @@
 const progressKey = "keyboard-quest-completed-objectives";
 const fingerColorKey = "keyboard-quest-show-all-finger-colors";
 const mistakeSoundKey = "keyboard-quest-mistake-sound";
+const themeKey = "keyboard-quest-theme";
 const completedLessonIds = new Set(JSON.parse(localStorage.getItem(progressKey) || "[]"));
 let showsFullFingerColors = localStorage.getItem(fingerColorKey) === "true";
 let playsMistakeSound = localStorage.getItem(mistakeSoundKey) !== "false";
+let selectedTheme = localStorage.getItem(themeKey) || "classic";
 let mistakeAudioContext = null;
 let lastMistakeSoundAt = 0;
 
@@ -46,6 +48,32 @@ const fingerCueElement = document.querySelector("#finger-cue");
 const keyboardGuideElement = document.querySelector("#keyboard-guide");
 const fullColorToggle = document.querySelector("#full-color-toggle");
 const mistakeSoundButton = document.querySelector("#mistake-sound-button");
+const settingsButton = document.querySelector("#settings-button");
+const settingsPanel = document.querySelector("#settings-panel");
+const closeSettingsButton = document.querySelector("#close-settings-button");
+const themeOptions = [...document.querySelectorAll('[name="app-theme"]')];
+
+function applyTheme(theme) {
+  const availableThemes = ["classic", "rebel-royal", "shark"];
+  selectedTheme = availableThemes.includes(theme) ? theme : "classic";
+  document.body.dataset.theme = selectedTheme;
+  themeOptions.forEach((option) => {
+    option.checked = option.value === selectedTheme;
+  });
+  localStorage.setItem(themeKey, selectedTheme);
+}
+
+function setSettingsOpen(isOpen, shouldReturnFocus = false) {
+  settingsPanel.hidden = !isOpen;
+  settingsButton.setAttribute("aria-expanded", isOpen);
+  settingsButton.setAttribute("aria-label", isOpen ? "Close settings" : "Open settings");
+  if (isOpen) {
+    const selectedOption = themeOptions.find((option) => option.checked);
+    selectedOption?.focus();
+  } else if (shouldReturnFocus) {
+    settingsButton.focus();
+  }
+}
 
 const KEYBOARD_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -144,7 +172,8 @@ function scrollTo(element) {
 function playMistakeSound() {
   if (!playsMistakeSound) return;
   const soundRequestedAt = Date.now();
-  if (soundRequestedAt - lastMistakeSoundAt < 75) return;
+  const minimumSoundGap = selectedTheme === "shark" ? 1200 : selectedTheme === "rebel-royal" ? 450 : 75;
+  if (soundRequestedAt - lastMistakeSoundAt < minimumSoundGap) return;
   lastMistakeSoundAt = soundRequestedAt;
 
   try {
@@ -154,6 +183,72 @@ function playMistakeSound() {
     if (mistakeAudioContext.state === "suspended") mistakeAudioContext.resume();
 
     const now = mistakeAudioContext.currentTime;
+    if (selectedTheme === "rebel-royal") {
+      const oscillator = mistakeAudioContext.createOscillator();
+      const filter = mistakeAudioContext.createBiquadFilter();
+      const gain = mistakeAudioContext.createGain();
+      oscillator.type = "sawtooth";
+      oscillator.frequency.setValueAtTime(108, now);
+      oscillator.frequency.setValueAtTime(82, now + 0.07);
+      oscillator.frequency.setValueAtTime(94, now + 0.13);
+      oscillator.frequency.setValueAtTime(68, now + 0.2);
+      oscillator.frequency.exponentialRampToValueAtTime(43, now + 0.34);
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(310, now);
+      filter.frequency.exponentialRampToValueAtTime(170, now + 0.34);
+      filter.Q.setValueAtTime(1.8, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.045, now + 0.025);
+      gain.gain.setValueAtTime(0.045, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      oscillator.connect(filter);
+      filter.connect(gain);
+      gain.connect(mistakeAudioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.36);
+      return;
+    }
+
+    if (selectedTheme === "shark") {
+      const filter = mistakeAudioContext.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(380, now);
+      filter.Q.setValueAtTime(0.8, now);
+      filter.connect(mistakeAudioContext.destination);
+
+      [
+        { frequency: 36.71, start: 0, duration: 0.42, volume: 0.05 },
+        { frequency: 38.89, start: 0.49, duration: 0.62, volume: 0.065 },
+      ].forEach((note) => {
+        const oscillator = mistakeAudioContext.createOscillator();
+        const hornBody = mistakeAudioContext.createOscillator();
+        const gain = mistakeAudioContext.createGain();
+        const bodyGain = mistakeAudioContext.createGain();
+        const noteStart = now + note.start;
+        const noteEnd = noteStart + note.duration;
+        oscillator.type = "triangle";
+        oscillator.frequency.setValueAtTime(note.frequency, noteStart);
+        hornBody.type = "sine";
+        hornBody.frequency.setValueAtTime(note.frequency * 2, noteStart);
+        gain.gain.setValueAtTime(0.0001, noteStart);
+        gain.gain.exponentialRampToValueAtTime(note.volume, noteStart + 0.075);
+        gain.gain.setValueAtTime(note.volume, noteEnd - 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+        bodyGain.gain.setValueAtTime(0.0001, noteStart);
+        bodyGain.gain.exponentialRampToValueAtTime(note.volume * 0.18, noteStart + 0.1);
+        bodyGain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+        oscillator.connect(gain);
+        hornBody.connect(bodyGain);
+        gain.connect(filter);
+        bodyGain.connect(filter);
+        oscillator.start(noteStart);
+        hornBody.start(noteStart);
+        oscillator.stop(noteEnd + 0.01);
+        hornBody.stop(noteEnd + 0.01);
+      });
+      return;
+    }
+
     const oscillator = mistakeAudioContext.createOscillator();
     const gain = mistakeAudioContext.createGain();
     oscillator.type = "triangle";
@@ -312,6 +407,14 @@ function completeCurrentLesson() {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (!settingsPanel.hidden) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setSettingsOpen(false, true);
+    }
+    return;
+  }
+
   if (activeMode !== "learn") {
     handleChallengeKey(event);
     return;
@@ -381,6 +484,18 @@ mistakeSoundButton.addEventListener("click", () => {
   playsMistakeSound = !playsMistakeSound;
   localStorage.setItem(mistakeSoundKey, playsMistakeSound);
   drawMistakeSoundButton();
+});
+applyTheme(selectedTheme);
+settingsButton.addEventListener("click", () => {
+  setSettingsOpen(settingsPanel.hidden, !settingsPanel.hidden);
+});
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false, true));
+themeOptions.forEach((option) => {
+  option.addEventListener("change", () => applyTheme(option.value));
+});
+document.addEventListener("click", (event) => {
+  if (settingsPanel.hidden || settingsPanel.contains(event.target) || settingsButton.contains(event.target)) return;
+  setSettingsOpen(false);
 });
 nextChapterButton.addEventListener("click", () => {
   const nextLesson = QUEST_LESSONS[QUEST_LESSONS.indexOf(currentLesson) + 1];

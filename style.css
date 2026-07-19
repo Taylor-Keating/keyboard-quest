@@ -23,6 +23,75 @@ body { min-height: 100vh; margin: 0; padding: 24px; }
 .sound-toggle-button.muted .sound-waves { display: none; }
 .sound-toggle-button.muted .mute-slash { display: block; }
 
+.settings-button {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 12;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  padding: 9px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 4px 4px 0 #172033;
+}
+.settings-button svg { width: 100%; height: 100%; }
+.settings-button path { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.settings-panel {
+  position: fixed;
+  top: 72px;
+  right: 14px;
+  z-index: 11;
+  width: min(390px, calc(100vw - 28px));
+  padding: 22px;
+  border: 4px solid #172033;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 8px 8px 0 #172033;
+}
+.settings-panel[hidden] { display: none; }
+.settings-heading-row { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.settings-heading-row .eyebrow { margin: 0 0 5px; }
+.settings-heading-row h2 { margin-bottom: 0; }
+.close-settings-button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  place-items: center;
+  padding: 0 0 3px;
+  border-radius: 50%;
+  background: #f2efff;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+.theme-options { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; border: 0; }
+.theme-options legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.theme-option {
+  display: grid;
+  grid-template-columns: auto 44px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 3px solid #c9ced6;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.theme-option:has(input:checked) { border-color: #6a4ee6; background: #f2efff; }
+.theme-option input { width: 19px; height: 19px; accent-color: #6a4ee6; }
+.theme-option strong, .theme-option small { display: block; }
+.theme-option small { margin-top: 2px; color: #687080; line-height: 1.25; }
+.theme-swatch { width: 44px; height: 36px; border: 2px solid #172033; border-radius: 9px; }
+.classic-swatch { background: linear-gradient(135deg, #dff5ff 0 50%, #ffd85a 50%); }
+.rebel-royal-swatch { background: linear-gradient(135deg, #27143f 0 45%, #9d3bd1 45% 72%, #a8e64b 72%); }
+.shark-swatch {
+  background:
+    linear-gradient(145deg, transparent 42%, #f6f2df 43% 54%, transparent 55%) 0 0 / 18px 18px,
+    radial-gradient(ellipse at center, #061b27 0 38%, #0b7897 40% 64%, #718f9b 66%);
+}
+
 .lesson-card,
 .journey,
 .challenge-card {
@@ -284,6 +353,191 @@ button {
 }
 
 button:hover, button:focus-visible { background: #ffbf3f; }
+
+/* Rebel Royal is an original enchanted-school palette with dramatic jewel tones. */
+body[data-theme="rebel-royal"] {
+  color: #f8f1ff;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(153, 54, 204, 0.38), transparent 30rem),
+    radial-gradient(circle at 86% 26%, rgba(139, 213, 69, 0.18), transparent 24rem),
+    linear-gradient(145deg, #120b20, #241039 55%, #10261f);
+  background-attachment: fixed;
+}
+body[data-theme="rebel-royal"] .app-header h1 {
+  color: #fff5cf;
+  text-shadow: 0 3px 0 #7c2aaa, 0 0 22px rgba(190, 88, 237, 0.55);
+}
+body[data-theme="rebel-royal"] .app-header .instructions { color: #e4d8ec; }
+body[data-theme="rebel-royal"] .eyebrow { color: #b7ed67; }
+body[data-theme="rebel-royal"] .lesson-card,
+body[data-theme="rebel-royal"] .journey,
+body[data-theme="rebel-royal"] .challenge-card,
+body[data-theme="rebel-royal"] .settings-panel {
+  border-color: #d4a83e;
+  color: #f8f1ff;
+  background: linear-gradient(145deg, #2c1742, #1b132c);
+  box-shadow: 8px 8px 0 #08050d, 0 0 0 1px rgba(255, 227, 144, 0.18) inset;
+}
+body[data-theme="rebel-royal"] .journey { background: linear-gradient(145deg, #38204b, #181326); }
+body[data-theme="rebel-royal"] .mode-switcher {
+  border-color: #d4a83e;
+  background: #160c24;
+  box-shadow: 5px 5px 0 #08050d;
+}
+body[data-theme="rebel-royal"] .mode-button { color: #eadff0; }
+body[data-theme="rebel-royal"] .mode-button.active,
+body[data-theme="rebel-royal"] .level-button.selected { color: #180c24; background: linear-gradient(135deg, #b7ed67, #d4a83e); }
+body[data-theme="rebel-royal"] .sound-toggle-button,
+body[data-theme="rebel-royal"] .settings-button {
+  border-color: #d4a83e;
+  color: #f7e9ff;
+  background: #27143f;
+  box-shadow: 4px 4px 0 #08050d;
+}
+body[data-theme="rebel-royal"] .learning-card,
+body[data-theme="rebel-royal"] .finger-guide,
+body[data-theme="rebel-royal"] .challenge-keyboard,
+body[data-theme="rebel-royal"] .exercise,
+body[data-theme="rebel-royal"] .challenge-target {
+  border-color: #8e49b5;
+  color: #f8f1ff;
+  background: rgba(54, 30, 76, 0.88);
+}
+body[data-theme="rebel-royal"] .learning-goal,
+body[data-theme="rebel-royal"] .current-letter,
+body[data-theme="rebel-royal"] .result-grid strong,
+body[data-theme="rebel-royal"] .live-stats strong,
+body[data-theme="rebel-royal"] .challenge-result-grid strong,
+body[data-theme="rebel-royal"] .final-score { color: #b7ed67; }
+body[data-theme="rebel-royal"] .quest-stop { border-color: #8753a3; background: #241531; }
+body[data-theme="rebel-royal"] .quest-stop.current { border-color: #b7ed67; background: #313d2a; }
+body[data-theme="rebel-royal"] .quest-stop.completed { border-color: #4eae78; background: #163528; }
+body[data-theme="rebel-royal"] .quest-stop.locked { border-color: #61566b; color: #a99fb0; background: #17131d; }
+body[data-theme="rebel-royal"] .stop-icon { color: #170b21; background: linear-gradient(135deg, #b7ed67, #d4a83e); }
+body[data-theme="rebel-royal"] .locked .stop-icon { color: #ddd4e2; background: #554b5d; }
+body[data-theme="rebel-royal"] .challenge-options,
+body[data-theme="rebel-royal"] .duration-options,
+body[data-theme="rebel-royal"] .space-option,
+body[data-theme="rebel-royal"] .challenge-helper-options,
+body[data-theme="rebel-royal"] .mission-results { border-color: #8753a3; background: #21132f; }
+body[data-theme="rebel-royal"] .challenge-options label,
+body[data-theme="rebel-royal"] .challenge-helper-options label,
+body[data-theme="rebel-royal"] .result-grid p,
+body[data-theme="rebel-royal"] .live-stats p,
+body[data-theme="rebel-royal"] .challenge-result-grid p { color: #f8f1ff; background: #38204b; }
+body[data-theme="rebel-royal"] .score-breakdown,
+body[data-theme="rebel-royal"] .pace-note { color: #cfc2d8; }
+body[data-theme="rebel-royal"] .keyboard-key { border-color: #21132e; color: #21132e; }
+body[data-theme="rebel-royal"] .keyboard-key.active-key { outline-color: #b7ed67; box-shadow: 0 0 18px rgba(183, 237, 103, 0.7); }
+body[data-theme="rebel-royal"] .keyboard-key.not-in-mission-key { color: #92879a; background: #39313f; }
+body[data-theme="rebel-royal"] .space-pill { color: #f8f1ff; background: #29163b; }
+body[data-theme="rebel-royal"] .space-pill.current-letter { color: #180c24; background: #b7ed67; box-shadow: 0 0 0 3px #d4a83e; }
+body[data-theme="rebel-royal"] button { border-color: #d4a83e; color: #1a0c25; background: linear-gradient(135deg, #b7ed67, #e2bb54); }
+body[data-theme="rebel-royal"] button:hover,
+body[data-theme="rebel-royal"] button:focus-visible { background: linear-gradient(135deg, #d1ff8b, #f0cd70); }
+body[data-theme="rebel-royal"] .close-settings-button { color: #f8f1ff; background: #4a2b61; }
+body[data-theme="rebel-royal"] .theme-option { border-color: #63516d; }
+body[data-theme="rebel-royal"] .theme-option:has(input:checked) { border-color: #b7ed67; background: #38204b; }
+body[data-theme="rebel-royal"] .theme-option input { accent-color: #9bd650; }
+body[data-theme="rebel-royal"] .theme-option small { color: #cfc2d8; }
+body[data-theme="rebel-royal"] .completed-letter { color: #6fe29b; }
+body[data-theme="rebel-royal"] .mistake,
+body[data-theme="rebel-royal"] .mistake-letter,
+body[data-theme="rebel-royal"] .setup-error { color: #ff6c92 !important; }
+
+/* Shark turns the page into a playful underwater mouth without changing the exercises. */
+body[data-theme="shark"] {
+  color: #092232;
+  background:
+    radial-gradient(circle at 8% 18%, rgba(181, 239, 255, 0.42) 0 5px, transparent 6px),
+    radial-gradient(circle at 92% 31%, rgba(181, 239, 255, 0.35) 0 8px, transparent 9px),
+    radial-gradient(circle at 12% 72%, rgba(181, 239, 255, 0.3) 0 11px, transparent 12px),
+    radial-gradient(circle at 88% 82%, rgba(181, 239, 255, 0.38) 0 4px, transparent 5px),
+    radial-gradient(ellipse at center, #03141f 0 31%, #063346 48%, #147a96 67%, #7895a0 84%, #405b66 100%);
+  background-attachment: fixed;
+}
+body[data-theme="shark"]::before,
+body[data-theme="shark"]::after {
+  position: fixed;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 74px;
+  content: "";
+  filter: drop-shadow(0 7px 0 rgba(87, 17, 24, 0.5));
+  background:
+    linear-gradient(135deg, transparent 48%, #f8f5e5 49% 72%, transparent 73%) 0 0 / 72px 72px repeat-x,
+    linear-gradient(225deg, transparent 48%, #f8f5e5 49% 72%, transparent 73%) 36px 0 / 72px 72px repeat-x;
+  pointer-events: none;
+}
+body[data-theme="shark"]::before { top: 0; }
+body[data-theme="shark"]::after { bottom: 0; transform: rotate(180deg); }
+body[data-theme="shark"] .app-shell { position: relative; z-index: 1; }
+body[data-theme="shark"] .sound-toggle-button { position: fixed; z-index: 10; }
+body[data-theme="shark"] .settings-panel { position: fixed; z-index: 11; }
+body[data-theme="shark"] .settings-button { position: fixed; z-index: 12; }
+body[data-theme="shark"] .app-header h1 {
+  color: #effcff;
+  text-shadow: 0 4px 0 #083c50, 0 0 20px rgba(105, 221, 246, 0.6);
+}
+body[data-theme="shark"] .app-header .instructions { color: #d6f6ff; }
+body[data-theme="shark"] .eyebrow { color: #08718e; }
+body[data-theme="shark"] .app-header .eyebrow { color: #82e7f6; }
+body[data-theme="shark"] .lesson-card,
+body[data-theme="shark"] .journey,
+body[data-theme="shark"] .challenge-card,
+body[data-theme="shark"] .settings-panel {
+  border-color: #092f40;
+  background: linear-gradient(145deg, rgba(239, 252, 255, 0.97), rgba(190, 234, 242, 0.97));
+  box-shadow: 8px 8px 0 #03141f, 0 0 0 2px rgba(255, 255, 255, 0.45) inset;
+}
+body[data-theme="shark"] .journey { background: linear-gradient(145deg, #d9f7fb, #a9dde7); }
+body[data-theme="shark"] .mode-switcher {
+  border-color: #092f40;
+  background: #dff8fc;
+  box-shadow: 5px 5px 0 #03141f;
+}
+body[data-theme="shark"] .mode-button.active,
+body[data-theme="shark"] .level-button.selected { color: white; background: linear-gradient(135deg, #087d9c, #0a526e); }
+body[data-theme="shark"] .sound-toggle-button,
+body[data-theme="shark"] .settings-button {
+  border-color: #d8f8ff;
+  color: #eafcff;
+  background: #0b536c;
+  box-shadow: 4px 4px 0 #03141f;
+}
+body[data-theme="shark"] .learning-card,
+body[data-theme="shark"] .finger-guide,
+body[data-theme="shark"] .challenge-keyboard,
+body[data-theme="shark"] .exercise,
+body[data-theme="shark"] .challenge-target { border-color: #0b6079; background: #c9edf3; }
+body[data-theme="shark"] .learning-goal,
+body[data-theme="shark"] .current-letter,
+body[data-theme="shark"] .result-grid strong,
+body[data-theme="shark"] .live-stats strong,
+body[data-theme="shark"] .challenge-result-grid strong,
+body[data-theme="shark"] .final-score { color: #08718e; }
+body[data-theme="shark"] .quest-stop.current { background: #aee9f2; }
+body[data-theme="shark"] .quest-stop.completed { background: #b9edcf; }
+body[data-theme="shark"] .stop-icon { background: #087d9c; }
+body[data-theme="shark"] .challenge-options label,
+body[data-theme="shark"] .challenge-helper-options label,
+body[data-theme="shark"] .result-grid p,
+body[data-theme="shark"] .live-stats p,
+body[data-theme="shark"] .challenge-result-grid p { background: #d5f2f6; }
+body[data-theme="shark"] .keyboard-key.active-key { outline-color: #062f40; box-shadow: 0 0 18px rgba(8, 125, 156, 0.55); }
+body[data-theme="shark"] button { border-color: #092f40; color: #071f2b; background: linear-gradient(135deg, #ffe36e, #ffb746); }
+body[data-theme="shark"] button:hover,
+body[data-theme="shark"] button:focus-visible { background: linear-gradient(135deg, #fff09b, #ffc969); }
+body[data-theme="shark"] .close-settings-button { color: white; background: #0b6079; }
+body[data-theme="shark"] .theme-option:has(input:checked) { border-color: #087d9c; background: #c9edf3; }
+body[data-theme="shark"] .theme-option input { accent-color: #087d9c; }
+body[data-theme="shark"] .theme-option small,
+body[data-theme="shark"] .score-breakdown,
+body[data-theme="shark"] .pace-note { color: #476673; }
+body[data-theme="shark"] .mistake,
+body[data-theme="shark"] .mistake-letter,
+body[data-theme="shark"] .setup-error { color: #c52342 !important; }
 
 @media (max-width: 520px) {
   .lesson-card, .journey, .challenge-card { padding: 24px; }
