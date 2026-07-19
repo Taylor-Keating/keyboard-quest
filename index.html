@@ -96,6 +96,8 @@
             <button class="level-button" type="button" data-challenge-level="4" aria-pressed="false">Level 4</button>
             <button class="level-button" type="button" data-challenge-level="5" aria-pressed="false">Level 5</button>
             <button class="level-button" type="button" data-challenge-level="6" aria-pressed="false">Level 6</button>
+            <button class="level-button" type="button" data-challenge-level="7" aria-pressed="false">Level 7</button>
+            <button class="level-button" type="button" data-challenge-level="8" aria-pressed="false">Level 8</button>
           </div>
 
           <fieldset class="challenge-options">
@@ -106,6 +108,8 @@
             <label><input type="checkbox" name="challenge-keys" value="outer-sky" /> <span><strong>Outer sky</strong> Q W O P</span></label>
             <label><input type="checkbox" name="challenge-keys" value="inner-cave" /> <span><strong>Inner cave</strong> C V B N M</span></label>
             <label><input type="checkbox" name="challenge-keys" value="outer-cave" /> <span><strong>Outer cave</strong> Z X , . /</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="numbers" /> <span><strong>Number row</strong> 1 2 3 4 5 6 7 8 9 0</span></label>
+            <label><input type="checkbox" name="challenge-keys" value="symbols" /> <span><strong>Shift symbols</strong> ! @ # $ % ^ &amp; * ( )</span></label>
           </fieldset>
 
           <fieldset class="space-option">
@@ -113,6 +117,18 @@
             <label>
               <input id="challenge-spaces" type="checkbox" checked />
               <span><strong>Include the Space Bar</strong> Adds word-like breaks between groups of keys</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="challenge-helper-options">
+            <legend>Challenge options</legend>
+            <label>
+              <input id="challenge-capitals" type="checkbox" />
+              <span><strong>Include capital letters</strong> Adds occasional Shift + letter combinations</span>
+            </label>
+            <label>
+              <input id="show-challenge-finger-guide" type="checkbox" checked />
+              <span><strong>Show the full-color Finger Guide</strong> Displays finger colors during the challenge</span>
             </label>
           </fieldset>
 
@@ -132,10 +148,19 @@
         <section id="challenge-play" class="challenge-card" aria-labelledby="challenge-play-heading" hidden>
           <p class="eyebrow">Challenge in progress</p>
           <h2 id="challenge-play-heading">Keep a steady rhythm</h2>
+          <section id="challenge-play-finger-guide" class="finger-guide challenge-play-finger-guide" aria-labelledby="challenge-finger-guide-heading">
+            <div>
+              <h3 id="challenge-finger-guide-heading">Finger guide</h3>
+              <p id="challenge-finger-cue" class="finger-cue"></p>
+              <p class="home-base-tip">Use the highlighted key, then return your fingers to home base.</p>
+            </div>
+            <div id="challenge-play-keyboard-guide" class="keyboard-guide" aria-label="Full-color challenge keyboard"></div>
+          </section>
           <div class="live-stats" aria-live="polite">
             <p><strong id="challenge-time">40 keys</strong><span>Remaining</span></p>
             <p><strong id="challenge-mistakes">0</strong><span>Mistakes</span></p>
-            <p><strong id="challenge-streak">0</strong><span>Best streak</span></p>
+            <p><strong id="challenge-streak">0</strong><span>Combo</span></p>
+            <p><strong id="challenge-score">0</strong><span>Points</span></p>
           </div>
           <p id="challenge-target" class="target challenge-target" aria-label="Challenge keys to type">
             <span id="challenge-lines-track" class="challenge-lines-track"></span>
@@ -149,6 +174,8 @@
         <section id="challenge-results" class="challenge-card" aria-labelledby="challenge-results-heading" hidden>
           <p class="eyebrow">Challenge complete</p>
           <h2 id="challenge-results-heading">Your results</h2>
+          <p class="final-score"><strong id="challenge-score-result">0</strong><span> points</span></p>
+          <p id="challenge-score-breakdown" class="score-breakdown"></p>
           <div class="challenge-result-grid">
             <p><strong id="challenge-accuracy-result">100%</strong><span>Accuracy</span></p>
             <p><strong id="challenge-mistakes-result">0</strong><span>Mistakes</span></p>

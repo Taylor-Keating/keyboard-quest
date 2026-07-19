@@ -5,6 +5,8 @@ const CHALLENGE_KEY_GROUPS = {
   "outer-sky": ["q", "w", "o", "p"],
   "inner-cave": ["c", "v", "b", "n", "m"],
   "outer-cave": ["z", "x", ",", ".", "/"],
+  numbers: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+  symbols: ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")"],
 };
 
 const CHALLENGE_LEVELS = [
@@ -14,9 +16,24 @@ const CHALLENGE_LEVELS = [
   ["anchors", "home-row", "inner-sky", "outer-sky"],
   ["anchors", "home-row", "inner-sky", "outer-sky", "inner-cave"],
   ["anchors", "home-row", "inner-sky", "outer-sky", "inner-cave", "outer-cave"],
+  ["anchors", "home-row", "inner-sky", "outer-sky", "inner-cave", "outer-cave", "numbers"],
+  ["anchors", "home-row", "inner-sky", "outer-sky", "inner-cave", "outer-cave", "numbers", "symbols"],
 ];
 
 const CHALLENGE_LINE_LENGTH = 12;
+const CHALLENGE_GROUP_ORDER = ["anchors", "home-row", "inner-sky", "outer-sky", "inner-cave", "outer-cave", "numbers", "symbols"];
+const CHALLENGE_NUMBER_ROW = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+const CHALLENGE_KEYBOARD_ROWS = [CHALLENGE_NUMBER_ROW, ...KEYBOARD_ROWS];
+const SHIFTED_NUMBER_KEYS = {
+  "1": "!", "2": "@", "3": "#", "4": "$", "5": "%",
+  "6": "^", "7": "&", "8": "*", "9": "(", "0": ")",
+};
+const SYMBOL_TO_NUMBER_KEY = Object.fromEntries(Object.entries(SHIFTED_NUMBER_KEYS).map(([number, symbol]) => [symbol, number]));
+const CHALLENGE_KEY_FINGERS = {
+  ...KEY_FINGERS,
+  "1": "left pinky", "2": "left ring", "3": "left middle", "4": "left index", "5": "left index",
+  "6": "right index", "7": "right index", "8": "right middle", "9": "right ring", "0": "right pinky",
+};
 
 const learnModeElement = document.querySelector("#learn-mode");
 const challengeModeElement = document.querySelector("#challenge-mode");
@@ -28,8 +45,13 @@ const challengeResultsElement = document.querySelector("#challenge-results");
 const levelButtons = [...document.querySelectorAll("[data-challenge-level]")];
 const challengeKeyCheckboxes = [...document.querySelectorAll('[name="challenge-keys"]')];
 const challengeSpaceCheckbox = document.querySelector("#challenge-spaces");
+const challengeCapitalsCheckbox = document.querySelector("#challenge-capitals");
+const showChallengeFingerGuideCheckbox = document.querySelector("#show-challenge-finger-guide");
 const challengeDurationRadios = [...document.querySelectorAll('[name="challenge-duration"]')];
 const challengeKeyboardElement = document.querySelector("#challenge-keyboard-guide");
+const challengePlayFingerGuideElement = document.querySelector("#challenge-play-finger-guide");
+const challengePlayKeyboardElement = document.querySelector("#challenge-play-keyboard-guide");
+const challengeFingerCueElement = document.querySelector("#challenge-finger-cue");
 const challengeSetupErrorElement = document.querySelector("#challenge-setup-error");
 const startChallengeButton = document.querySelector("#start-challenge-button");
 const endChallengeButton = document.querySelector("#end-challenge-button");
@@ -40,6 +62,9 @@ const challengeFeedbackElement = document.querySelector("#challenge-feedback");
 const challengeTimeElement = document.querySelector("#challenge-time");
 const challengeMistakesElement = document.querySelector("#challenge-mistakes");
 const challengeStreakElement = document.querySelector("#challenge-streak");
+const challengeScoreElement = document.querySelector("#challenge-score");
+const challengeScoreResultElement = document.querySelector("#challenge-score-result");
+const challengeScoreBreakdownElement = document.querySelector("#challenge-score-breakdown");
 const challengeAccuracyResultElement = document.querySelector("#challenge-accuracy-result");
 const challengeMistakesResultElement = document.querySelector("#challenge-mistakes-result");
 const challengePaceResultElement = document.querySelector("#challenge-pace-result");
@@ -56,6 +81,13 @@ let challengeDurationSeconds = 0;
 let challengeStartedAt = null;
 let challengeTimer = null;
 let challengeRunning = false;
+let challengeScore = 0;
+let challengePenaltyPoints = 0;
+let challengeLevel = 1;
+let challengeLevelMultiplier = 1;
+let challengeOptionMultiplier = 1;
+let challengeUsesCapitals = false;
+let challengeShowsFingerGuide = true;
 
 function selectedChallengeGroups() {
   return challengeKeyCheckboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value);
@@ -68,6 +100,15 @@ function selectedChallengeKeys() {
 
 function challengeIncludesSpaces() {
   return challengeSpaceCheckbox.checked;
+}
+
+function selectedChallengeDifficultyLevel() {
+  const selectedGroups = selectedChallengeGroups();
+  return Math.max(1, ...selectedGroups.map((group) => CHALLENGE_GROUP_ORDER.indexOf(group) + 1));
+}
+
+function streakMultiplier(streak) {
+  return 1 + Math.min(Math.floor(streak / 10) * 0.05, 0.25);
 }
 
 function setMode(mode) {
@@ -104,20 +145,53 @@ function updateSelectedLevel() {
   });
 }
 
-function drawChallengeKeyboard(nextKey = null) {
-  const selectedKeys = new Set(selectedChallengeKeys());
-  const letterRows = KEYBOARD_ROWS.map((row) => `
+function physicalChallengeKey(key) {
+  if (!key || key === " ") return key;
+  return SYMBOL_TO_NUMBER_KEY[key] || key.toLowerCase();
+}
+
+function challengeKeyLabel(key) {
+  if (!SHIFTED_NUMBER_KEYS[key]) return key.toUpperCase();
+  return `<span class="number-key-label"><span>${SHIFTED_NUMBER_KEYS[key]}</span><span>${key}</span></span>`;
+}
+
+function challengeKeyboardMarkup(nextKey = null, showAllColors = false) {
+  const selectedPhysicalKeys = new Set(selectedChallengeKeys().map(physicalChallengeKey));
+  const physicalNextKey = physicalChallengeKey(nextKey);
+  const letterRows = CHALLENGE_KEYBOARD_ROWS.map((row) => `
     <div class="keyboard-row">
       ${row.map((key) => {
-        const fingerClass = `finger-${KEY_FINGERS[key].replace(" ", "-")}`;
-        const selectedClass = selectedKeys.has(key) ? "mission-key" : "not-in-mission-key";
-        const activeClass = key === nextKey ? "active-key" : "";
-        return `<span class="keyboard-key ${fingerClass} ${selectedClass} ${activeClass}">${key.toUpperCase()}</span>`;
+        const fingerClass = `finger-${CHALLENGE_KEY_FINGERS[key].replace(" ", "-")}`;
+        const selectedClass = showAllColors ? "" : selectedPhysicalKeys.has(key) ? "mission-key" : "not-in-mission-key";
+        const activeClass = key === physicalNextKey ? "active-key" : "";
+        return `<span class="keyboard-key ${fingerClass} ${selectedClass} ${activeClass}">${challengeKeyLabel(key)}</span>`;
       }).join("")}
     </div>`).join("");
-  const spaceClass = challengeIncludesSpaces() ? "mission-key" : "not-in-mission-key";
+  const spaceClass = showAllColors || challengeIncludesSpaces() ? "mission-key" : "not-in-mission-key";
   const activeSpaceClass = nextKey === " " ? "active-key" : "";
-  challengeKeyboardElement.innerHTML = `${letterRows}<div class="keyboard-space-row"><span class="keyboard-key keyboard-space ${spaceClass} ${activeSpaceClass}">SPACE</span></div>`;
+  return `${letterRows}<div class="keyboard-space-row"><span class="keyboard-key keyboard-space ${spaceClass} ${activeSpaceClass}">SPACE</span></div>`;
+}
+
+function drawChallengeKeyboard() {
+  challengeKeyboardElement.innerHTML = challengeKeyboardMarkup();
+}
+
+function drawChallengePlayKeyboard(nextKey) {
+  challengePlayFingerGuideElement.hidden = !showChallengeFingerGuideCheckbox.checked;
+  if (challengePlayFingerGuideElement.hidden) return;
+
+  challengePlayKeyboardElement.innerHTML = challengeKeyboardMarkup(nextKey, true);
+  if (nextKey === " ") {
+    challengeFingerCueElement.textContent = "Next: Space bar — use either thumb.";
+    return;
+  }
+
+  const physicalKey = physicalChallengeKey(nextKey);
+  const finger = CHALLENGE_KEY_FINGERS[physicalKey];
+  const needsShift = nextKey !== physicalKey;
+  challengeFingerCueElement.textContent = needsShift
+    ? `Next: Shift + ${physicalKey.toUpperCase()} — ${finger} finger.`
+    : `Next: ${nextKey.toUpperCase()} — ${finger} finger.`;
 }
 
 function generateChallengeKeys(length) {
@@ -136,9 +210,15 @@ function generateChallengeKeys(length) {
     }
 
     let key = keys[Math.floor(Math.random() * keys.length)];
+    if (challengeCapitalsCheckbox.checked && /^[a-z]$/.test(key) && Math.random() < 0.3) {
+      key = key.toUpperCase();
+    }
     if (keys.length > 1 && generated.length > 1) {
       while (key === generated[generated.length - 1] && key === generated[generated.length - 2]) {
         key = keys[Math.floor(Math.random() * keys.length)];
+        if (challengeCapitalsCheckbox.checked && /^[a-z]$/.test(key) && Math.random() < 0.3) {
+          key = key.toUpperCase();
+        }
       }
     }
     generated.push(key);
@@ -166,7 +246,7 @@ function drawChallengeTarget() {
 
   challengeLinesTrackElement.innerHTML = lines.join("");
   challengeLinesTrackElement.style.transform = `translateY(-${currentLine * 1.65}em)`;
-  drawChallengeKeyboard(challengeSequence[challengePosition]);
+  drawChallengePlayKeyboard(challengeSequence[challengePosition]);
 }
 
 function selectedDuration() {
@@ -187,6 +267,13 @@ function startChallenge() {
   challengeMistakes = 0;
   challengeCurrentStreak = 0;
   challengeBestStreak = 0;
+  challengeScore = 0;
+  challengePenaltyPoints = 0;
+  challengeLevel = selectedChallengeDifficultyLevel();
+  challengeLevelMultiplier = 1 + ((challengeLevel - 1) * 0.15);
+  challengeUsesCapitals = challengeCapitalsCheckbox.checked && selectedChallengeKeys().some((key) => /^[a-z]$/.test(key));
+  challengeShowsFingerGuide = showChallengeFingerGuideCheckbox.checked;
+  challengeOptionMultiplier = (challengeUsesCapitals ? 1.15 : 1) * (challengeShowsFingerGuide ? 1 : 1.1);
   challengeStartedAt = null;
   challengeRunning = true;
   clearInterval(challengeTimer);
@@ -199,6 +286,7 @@ function startChallenge() {
   challengeFeedbackElement.classList.remove("mistake");
   challengeMistakesElement.textContent = "0";
   challengeStreakElement.textContent = "0";
+  challengeScoreElement.textContent = "0";
   challengeTimeElement.textContent = challengeDurationSeconds > 0 ? `${challengeDurationSeconds}s` : "40 keys";
   challengeLinesTrackElement.classList.add("no-transition");
   drawChallengeTarget();
@@ -223,7 +311,11 @@ function updateChallengeTimer() {
 
 function updateChallengeStats() {
   challengeMistakesElement.textContent = challengeMistakes;
-  challengeStreakElement.textContent = challengeBestStreak;
+  const currentStreakMultiplier = streakMultiplier(challengeCurrentStreak);
+  challengeStreakElement.textContent = currentStreakMultiplier > 1
+    ? `${challengeCurrentStreak} ×${currentStreakMultiplier.toFixed(2)}`
+    : challengeCurrentStreak;
+  challengeScoreElement.textContent = Math.max(0, challengeScore - challengePenaltyPoints).toLocaleString();
   if (challengeDurationSeconds === 0) {
     challengeTimeElement.textContent = `${challengeSequence.length - challengePosition} keys`;
   }
@@ -236,12 +328,14 @@ function handleChallengeKey(event) {
 
   challengeAttempts += 1;
   const expectedKey = challengeSequence[challengePosition];
-  const typedKey = event.key.toLowerCase();
+  const typedKey = event.key;
 
   if (typedKey === expectedKey) {
     challengePosition += 1;
     challengeCurrentStreak += 1;
     challengeBestStreak = Math.max(challengeBestStreak, challengeCurrentStreak);
+    const keyPoints = Math.round(20 * challengeLevelMultiplier * challengeOptionMultiplier * streakMultiplier(challengeCurrentStreak));
+    challengeScore += keyPoints;
     challengeFeedbackElement.textContent = "Nice! Keep going.";
     challengeFeedbackElement.classList.remove("mistake");
 
@@ -255,6 +349,7 @@ function handleChallengeKey(event) {
   } else {
     challengeMistakes += 1;
     challengeCurrentStreak = 0;
+    challengePenaltyPoints += 25;
     const hint = expectedKey === " " ? "the space bar" : expectedKey.toUpperCase();
     challengeFeedbackElement.textContent = `Almost! Try ${hint}.`;
     challengeFeedbackElement.classList.add("mistake");
@@ -278,11 +373,18 @@ function finishChallenge(shouldScroll = true) {
     : elapsedMilliseconds;
   const elapsedMinutes = Math.max(measuredMilliseconds, 1000) / 60000;
   const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
+  const paceBonus = Math.round(keysPerMinute * 10 * challengeLevelMultiplier * challengeOptionMultiplier);
+  const finalScore = Math.max(0, challengeScore + paceBonus - challengePenaltyPoints);
 
   challengeAccuracyResultElement.textContent = `${accuracy}%`;
   challengeMistakesResultElement.textContent = challengeMistakes;
   challengePaceResultElement.textContent = keysPerMinute;
   challengeStreakResultElement.textContent = challengeBestStreak;
+  challengeScoreResultElement.textContent = finalScore.toLocaleString();
+  const multiplierParts = [`Level ${challengeLevel} ×${challengeLevelMultiplier.toFixed(2)}`];
+  if (challengeUsesCapitals) multiplierParts.push("Capitals ×1.15");
+  if (!challengeShowsFingerGuide) multiplierParts.push("No guide ×1.10");
+  challengeScoreBreakdownElement.textContent = `${multiplierParts.join(" · ")} · Key points +${challengeScore.toLocaleString()} · Pace bonus +${paceBonus.toLocaleString()} · Mistake penalties −${challengePenaltyPoints.toLocaleString()}`;
   challengeResultsMessageElement.textContent = accuracy >= 95
     ? "Excellent control—accuracy stayed strong throughout the challenge!"
     : accuracy >= 80
