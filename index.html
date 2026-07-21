@@ -38,6 +38,14 @@
           <p id="profile-form-error" class="profile-form-error" aria-live="polite"></p>
           <button type="submit">Create player</button>
         </form>
+        <section class="profile-import-card" aria-labelledby="profile-import-heading">
+          <div>
+            <h2 id="profile-import-heading">Already have a save?</h2>
+            <p>Bring in a Keyboard Quest profile from another browser or computer.</p>
+          </div>
+          <button id="import-profile-gate-button" type="button">Import profile</button>
+        </section>
+        <p id="profile-import-error" class="profile-form-error" aria-live="polite"></p>
       </div>
     </section>
     <section id="reset-progress-dialog" class="confirmation-dialog" role="alertdialog" aria-modal="true" aria-labelledby="reset-progress-heading" aria-describedby="reset-progress-description" hidden>
@@ -92,6 +100,7 @@
         </div>
       </div>
     </section>
+    <input id="profile-import-file" class="visually-hidden" type="file" accept=".json,application/json" tabindex="-1" />
     <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path class="speaker-shape" d="M4 9v6h4l5 4V5L8 9H4Z"></path>
@@ -138,6 +147,11 @@
           <button id="edit-profile-button" type="button">Edit profile</button>
           <button id="reset-profile-progress-button" class="reset-profile-progress-button" type="button">Reset progress</button>
         </div>
+        <div class="profile-transfer-actions">
+          <button id="export-profile-button" type="button">Export profile</button>
+          <button id="import-profile-settings-button" type="button">Import profile</button>
+        </div>
+        <p id="profile-transfer-status" class="profile-transfer-status" aria-live="polite"></p>
       </section>
     </aside>
     <main class="app-shell">

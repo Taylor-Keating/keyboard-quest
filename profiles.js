@@ -9,6 +9,14 @@ const legacyProfileKeys = [
   "keyboard-quest-theme",
   "keyboard-quest-completed-stages",
 ];
+const profileTransferFormat = "keyboard-quest-profile";
+const profileTransferVersion = 1;
+const profileAvatarChoices = ["🦈", "🐉", "🦄", "🦖", "🐙", "🚀"];
+const completedObjectivesBaseKey = "keyboard-quest-completed-objectives";
+const completedStagesBaseKey = "keyboard-quest-completed-stages";
+const fingerColorsBaseKey = "keyboard-quest-show-all-finger-colors";
+const mistakeSoundBaseKey = "keyboard-quest-mistake-sound";
+const themeBaseKey = "keyboard-quest-theme";
 
 function readProfiles() {
   try {
@@ -88,14 +96,161 @@ const deleteProfileDialog = document.querySelector("#delete-profile-dialog");
 const deleteProfileName = document.querySelector("#delete-profile-name");
 const cancelDeleteProfileButton = document.querySelector("#cancel-delete-profile-button");
 const confirmDeleteProfileButton = document.querySelector("#confirm-delete-profile-button");
+const exportProfileButton = document.querySelector("#export-profile-button");
+const importProfileSettingsButton = document.querySelector("#import-profile-settings-button");
+const importProfileGateButton = document.querySelector("#import-profile-gate-button");
+const profileImportFile = document.querySelector("#profile-import-file");
+const profileImportError = document.querySelector("#profile-import-error");
+const profileTransferStatus = document.querySelector("#profile-transfer-status");
 
 function profileObjectiveCount(profileId) {
   try {
-    const completed = JSON.parse(localStorage.getItem(profileStorageKey("keyboard-quest-completed-objectives", profileId)) || "[]");
+    const completed = JSON.parse(localStorage.getItem(profileStorageKey(completedObjectivesBaseKey, profileId)) || "[]");
     return Array.isArray(completed) ? completed.length : 0;
   } catch {
     return 0;
   }
+}
+
+function readStoredArray(baseKey, profileId = activeProfileId) {
+  try {
+    const value = JSON.parse(localStorage.getItem(profileStorageKey(baseKey, profileId)) || "[]");
+    return Array.isArray(value) ? value.filter((item) => typeof item === "string").slice(0, 200) : [];
+  } catch {
+    return [];
+  }
+}
+
+function uniqueImportedProfileName(requestedName) {
+  const cleanedName = requestedName.trim().replace(/\s+/g, " ").slice(0, 18) || "Imported Player";
+  if (!keyboardQuestProfiles.some((profile) => profile.name.toLowerCase() === cleanedName.toLowerCase())) return cleanedName;
+
+  for (let copyNumber = 2; copyNumber < 100; copyNumber += 1) {
+    const suffix = ` (${copyNumber})`;
+    const candidate = `${cleanedName.slice(0, 18 - suffix.length)}${suffix}`;
+    if (!keyboardQuestProfiles.some((profile) => profile.name.toLowerCase() === candidate.toLowerCase())) return candidate;
+  }
+  return `Imported ${Date.now().toString().slice(-6)}`;
+}
+
+function safeProfileStats(value) {
+  const safeStats = {};
+  const numericFields = [
+    "missionsCompleted",
+    "challengesCompleted",
+    "totalMistakes",
+    "bestKeysPerMinute",
+    "bestChallengeScore",
+    "memoryGamesPlayed",
+    "bestMemoryScore",
+    "bestMemoryGoals",
+  ];
+  numericFields.forEach((field) => {
+    if (Number.isFinite(value?.[field])) safeStats[field] = Math.max(0, Math.round(value[field]));
+  });
+  if (typeof value?.lastPlayedAt === "string") safeStats.lastPlayedAt = value.lastPlayedAt.slice(0, 40);
+  return safeStats;
+}
+
+function profileExportData() {
+  const profile = activeProfile();
+  if (!profile) return null;
+  const storedTheme = localStorage.getItem(profileStorageKey(themeBaseKey));
+  return {
+    format: profileTransferFormat,
+    version: profileTransferVersion,
+    exportedAt: new Date().toISOString(),
+    profile: { name: profile.name, avatar: profile.avatar },
+    progress: {
+      completedObjectives: readStoredArray(completedObjectivesBaseKey),
+      completedStages: readStoredArray(completedStagesBaseKey),
+    },
+    preferences: {
+      showAllFingerColors: localStorage.getItem(profileStorageKey(fingerColorsBaseKey)) === "true",
+      mistakeSound: localStorage.getItem(profileStorageKey(mistakeSoundBaseKey)) !== "false",
+      theme: ["classic", "rebel-royal", "shark"].includes(storedTheme) ? storedTheme : "classic",
+    },
+    statistics: safeProfileStats(readProfileStats(activeProfileId)),
+  };
+}
+
+function exportActiveProfile() {
+  const exportData = profileExportData();
+  if (!exportData) return;
+  const fileContents = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([fileContents], { type: "application/json" });
+  const downloadUrl = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  const safeName = exportData.profile.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "player";
+  downloadLink.href = downloadUrl;
+  downloadLink.download = `keyboard-quest-${safeName}.json`;
+  document.body.append(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+  profileTransferStatus.textContent = `Exported ${exportData.profile.name}’s profile.`;
+}
+
+function normalizedImportData(value) {
+  if (value?.format !== profileTransferFormat) throw new Error("That file is not a Keyboard Quest profile.");
+  if (value.version !== profileTransferVersion) throw new Error("That profile was created by an unsupported version of Keyboard Quest.");
+  if (typeof value.profile?.name !== "string") throw new Error("The profile file is missing a player name.");
+
+  const theme = value.preferences?.theme;
+  return {
+    name: uniqueImportedProfileName(value.profile.name),
+    avatar: profileAvatarChoices.includes(value.profile.avatar) ? value.profile.avatar : "🚀",
+    completedObjectives: Array.isArray(value.progress?.completedObjectives)
+      ? value.progress.completedObjectives.filter((item) => typeof item === "string").slice(0, 200)
+      : [],
+    completedStages: Array.isArray(value.progress?.completedStages)
+      ? value.progress.completedStages.filter((item) => typeof item === "string").slice(0, 200)
+      : [],
+    showAllFingerColors: value.preferences?.showAllFingerColors === true,
+    mistakeSound: value.preferences?.mistakeSound !== false,
+    theme: ["classic", "rebel-royal", "shark"].includes(theme) ? theme : "classic",
+    statistics: safeProfileStats(value.statistics),
+  };
+}
+
+function saveImportedProfile(importData) {
+  const profile = {
+    id: globalThis.crypto?.randomUUID?.() || `player-${Date.now()}`,
+    name: importData.name,
+    avatar: importData.avatar,
+    createdAt: new Date().toISOString(),
+  };
+  keyboardQuestProfiles.push(profile);
+  localStorage.setItem(profilesKey, JSON.stringify(keyboardQuestProfiles));
+  localStorage.setItem(profileStorageKey(completedObjectivesBaseKey, profile.id), JSON.stringify(importData.completedObjectives));
+  localStorage.setItem(profileStorageKey(completedStagesBaseKey, profile.id), JSON.stringify(importData.completedStages));
+  localStorage.setItem(profileStorageKey(fingerColorsBaseKey, profile.id), String(importData.showAllFingerColors));
+  localStorage.setItem(profileStorageKey(mistakeSoundBaseKey, profile.id), String(importData.mistakeSound));
+  localStorage.setItem(profileStorageKey(themeBaseKey, profile.id), importData.theme);
+  localStorage.setItem(profileStorageKey(profileStatsBaseKey, profile.id), JSON.stringify(importData.statistics));
+  localStorage.setItem(activeProfileKey, profile.id);
+  window.location.reload();
+}
+
+async function importProfileFile(file) {
+  if (!file) return;
+  profileImportError.textContent = "";
+  profileTransferStatus.textContent = "";
+  try {
+    if (file.size > 500_000) throw new Error("That profile file is too large.");
+    const parsedFile = JSON.parse(await file.text());
+    saveImportedProfile(normalizedImportData(parsedFile));
+  } catch (error) {
+    const message = error instanceof SyntaxError ? "That file is damaged or is not valid JSON." : error.message;
+    profileImportError.textContent = message;
+    profileTransferStatus.textContent = message;
+  } finally {
+    profileImportFile.value = "";
+  }
+}
+
+function chooseProfileImportFile() {
+  profileImportFile.click();
 }
 
 function drawProfileList() {
@@ -326,6 +481,10 @@ createProfileForm.addEventListener("submit", (event) => {
 });
 
 switchProfileButton.addEventListener("click", () => openProfileChooser(true));
+exportProfileButton.addEventListener("click", exportActiveProfile);
+importProfileSettingsButton.addEventListener("click", chooseProfileImportFile);
+importProfileGateButton.addEventListener("click", chooseProfileImportFile);
+profileImportFile.addEventListener("change", () => importProfileFile(profileImportFile.files[0]));
 editProfileButton.addEventListener("click", () => setEditProfileDialogOpen(true));
 editProfileForm.addEventListener("submit", saveEditedProfile);
 cancelEditProfileButton.addEventListener("click", () => setEditProfileDialogOpen(false, true));
