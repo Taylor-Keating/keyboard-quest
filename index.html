@@ -150,6 +150,7 @@
       <nav class="mode-switcher" aria-label="Choose an activity mode">
         <button id="learn-mode-button" class="mode-button active" type="button" aria-pressed="true">Learn</button>
         <button id="challenge-mode-button" class="mode-button" type="button" aria-pressed="false">Challenge</button>
+        <button id="memory-mode-button" class="mode-button" type="button" aria-pressed="false">Memory</button>
       </nav>
       <div id="learn-mode">
         <section class="journey" aria-labelledby="journey-heading">
@@ -325,11 +326,64 @@
           </div>
         </section>
       </div>
+
+      <div id="memory-mode" hidden>
+        <section id="memory-setup" class="challenge-card memory-card" aria-labelledby="memory-heading">
+          <p class="eyebrow">Memory game</p>
+          <h2 id="memory-heading">Penalty survival</h2>
+          <p class="instructions">A letter appears with five seconds on the clock. Type it correctly to score and face a faster round.</p>
+          <div class="memory-level-presets" aria-label="Memory game letter levels">
+            <button class="memory-level-button selected" type="button" data-memory-level="1" aria-pressed="true">Level 1</button>
+            <button class="memory-level-button" type="button" data-memory-level="2" aria-pressed="false">Level 2</button>
+            <button class="memory-level-button" type="button" data-memory-level="3" aria-pressed="false">Level 3</button>
+            <button class="memory-level-button" type="button" data-memory-level="4" aria-pressed="false">Level 4</button>
+            <button class="memory-level-button" type="button" data-memory-level="5" aria-pressed="false">Level 5</button>
+            <button class="memory-level-button" type="button" data-memory-level="6" aria-pressed="false">Level 6</button>
+          </div>
+          <p id="memory-level-summary" class="memory-level-summary"></p>
+          <p class="pace-note">Survival rules: one wrong letter or an expired timer ends the run.</p>
+          <button id="start-memory-button" type="button">Start memory game</button>
+        </section>
+
+        <section id="memory-play" class="challenge-card memory-card" aria-labelledby="memory-play-heading" hidden>
+          <p class="eyebrow">Penalty survival</p>
+          <h2 id="memory-play-heading">Type before time runs out!</h2>
+          <div class="memory-live-stats" aria-live="polite">
+            <p><strong id="memory-saves">0</strong><span>Goals</span></p>
+            <p><strong id="memory-score">0</strong><span>Points</span></p>
+            <p><strong id="memory-time">5.0s</strong><span>Time</span></p>
+          </div>
+          <div class="memory-countdown" aria-hidden="true"><span id="memory-countdown-fill"></span></div>
+          <p id="memory-target" class="memory-target" aria-label="Letter to type"><span id="memory-letter" class="current-letter">F</span></p>
+          <p id="memory-feedback" class="feedback" aria-live="polite">Get ready…</p>
+          <div class="mission-actions">
+            <button id="end-memory-button" type="button">End game</button>
+          </div>
+        </section>
+
+        <section id="memory-results" class="challenge-card memory-card" aria-labelledby="memory-results-heading" hidden>
+          <p class="eyebrow">Run complete</p>
+          <h2 id="memory-results-heading">Penalty results</h2>
+          <p class="final-score"><strong id="memory-score-result">0</strong><span> points</span></p>
+          <div class="challenge-result-grid memory-result-grid">
+            <p><strong id="memory-goals-result">0</strong><span>Goals</span></p>
+            <p><strong id="memory-level-result">1</strong><span>Level</span></p>
+            <p><strong id="memory-speed-result">5.0s</strong><span>Final timer</span></p>
+            <p><strong id="memory-pace-result">0</strong><span>Keys/min</span></p>
+          </div>
+          <p id="memory-results-message" class="results-message"></p>
+          <div class="mission-actions">
+            <button id="retry-memory-button" type="button">Try again</button>
+            <button id="change-memory-button" type="button">Change level</button>
+          </div>
+        </section>
+      </div>
     </main>
 
     <script src="profiles.js"></script>
     <script src="lessons.js"></script>
     <script src="app.js"></script>
     <script src="challenge.js"></script>
+    <script src="memory.js"></script>
   </body>
 </html>

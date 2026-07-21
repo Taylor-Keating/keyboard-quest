@@ -501,8 +501,15 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
-  if (activeMode !== "learn") {
+  if (event.target.closest?.(".mode-button")) return;
+
+  if (activeMode === "challenge") {
     handleChallengeKey(event);
+    return;
+  }
+
+  if (activeMode === "memory") {
+    handleMemoryKey(event);
     return;
   }
 

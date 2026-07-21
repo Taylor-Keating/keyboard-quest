@@ -37,8 +37,10 @@ const CHALLENGE_KEY_FINGERS = {
 
 const learnModeElement = document.querySelector("#learn-mode");
 const challengeModeElement = document.querySelector("#challenge-mode");
+const memoryModeElement = document.querySelector("#memory-mode");
 const learnModeButton = document.querySelector("#learn-mode-button");
 const challengeModeButton = document.querySelector("#challenge-mode-button");
+const memoryModeButton = document.querySelector("#memory-mode-button");
 const challengeSetupElement = document.querySelector("#challenge-setup");
 const challengePlayElement = document.querySelector("#challenge-play");
 const challengeResultsElement = document.querySelector("#challenge-results");
@@ -113,15 +115,21 @@ function streakMultiplier(streak) {
 
 function setMode(mode) {
   const isLearnMode = mode === "learn";
-  if (isLearnMode && challengeRunning) finishChallenge(false);
+  const isChallengeMode = mode === "challenge";
+  const isMemoryMode = mode === "memory";
+  if (!isChallengeMode && challengeRunning) finishChallenge(false);
+  if (!isMemoryMode && typeof leaveMemoryGame === "function") leaveMemoryGame();
   activeMode = mode;
   learnModeElement.hidden = !isLearnMode;
-  challengeModeElement.hidden = isLearnMode;
+  challengeModeElement.hidden = !isChallengeMode;
+  memoryModeElement.hidden = !isMemoryMode;
   learnModeButton.classList.toggle("active", isLearnMode);
-  challengeModeButton.classList.toggle("active", !isLearnMode);
+  challengeModeButton.classList.toggle("active", isChallengeMode);
+  memoryModeButton.classList.toggle("active", isMemoryMode);
   learnModeButton.setAttribute("aria-pressed", isLearnMode);
-  challengeModeButton.setAttribute("aria-pressed", !isLearnMode);
-  scrollTo(isLearnMode ? learnModeElement : challengeModeElement);
+  challengeModeButton.setAttribute("aria-pressed", isChallengeMode);
+  memoryModeButton.setAttribute("aria-pressed", isMemoryMode);
+  scrollTo(isLearnMode ? learnModeElement : isChallengeMode ? challengeModeElement : memoryModeElement);
 }
 
 function selectChallengeLevel(level) {
@@ -409,6 +417,7 @@ function changeChallenge() {
 
 learnModeButton.addEventListener("click", () => setMode("learn"));
 challengeModeButton.addEventListener("click", () => setMode("challenge"));
+memoryModeButton.addEventListener("click", () => setMode("memory"));
 levelButtons.forEach((button) => {
   button.addEventListener("click", () => selectChallengeLevel(Number(button.dataset.challengeLevel)));
 });

@@ -38,6 +38,9 @@ function readProfileStats(profileId) {
     totalMistakes: 0,
     bestKeysPerMinute: 0,
     bestChallengeScore: 0,
+    memoryGamesPlayed: 0,
+    bestMemoryScore: 0,
+    bestMemoryGoals: 0,
     lastPlayedAt: null,
   };
 
@@ -55,6 +58,11 @@ function recordProfileActivity(activity) {
   if (activity.type === "challenge") {
     stats.challengesCompleted += 1;
     stats.bestChallengeScore = Math.max(stats.bestChallengeScore, activity.score || 0);
+  }
+  if (activity.type === "memory") {
+    stats.memoryGamesPlayed += 1;
+    stats.bestMemoryScore = Math.max(stats.bestMemoryScore, activity.score || 0);
+    stats.bestMemoryGoals = Math.max(stats.bestMemoryGoals, activity.goals || 0);
   }
   stats.totalMistakes += activity.mistakes || 0;
   stats.bestKeysPerMinute = Math.max(stats.bestKeysPerMinute, activity.keysPerMinute || 0);

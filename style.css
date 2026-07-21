@@ -12,7 +12,7 @@ body.profile-gate-open { overflow: hidden; }
 .app-shell { width: min(100%, 760px); margin: 0 auto; }
 .app-header { padding: 12px 12px 24px; text-align: center; }
 
-.mode-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 auto 28px; padding: 6px; border: 3px solid #172033; border-radius: 999px; background: white; box-shadow: 5px 5px 0 #172033; }
+.mode-switcher { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 auto 28px; padding: 6px; border: 3px solid #172033; border-radius: 999px; background: white; box-shadow: 5px 5px 0 #172033; }
 .mode-button { border: 0; background: transparent; }
 .mode-button.active { background: #6a4ee6; color: white; }
 
@@ -343,6 +343,20 @@ body.profile-gate-open { overflow: hidden; }
 .challenge-lines-track.no-transition { transition: none; }
 .challenge-line { display: flex; min-height: 1.65em; align-items: center; justify-content: center; gap: 0.12em; }
 
+.memory-level-presets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 24px 0 16px; }
+.memory-level-button { padding: 11px 5px; border-radius: 12px; background: #f2efff; font-size: 0.88rem; }
+.memory-level-button.selected { color: white; background: #6a4ee6; }
+.memory-level-summary { min-height: 2.8em; margin: 0 auto 12px; color: #4b3aa8; font-weight: bold; line-height: 1.4; }
+.memory-live-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 16px; }
+.memory-live-stats p { display: grid; gap: 4px; margin: 0; padding: 14px 8px; border-radius: 12px; background: #e9f8fc; }
+.memory-live-stats strong { color: #4b3aa8; font-size: 1.5rem; }
+.memory-live-stats span { font-size: 0.8rem; font-weight: bold; }
+.memory-countdown { height: 16px; overflow: hidden; border: 3px solid #172033; border-radius: 999px; background: #edf0f4; }
+.memory-countdown span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, #19935a, #ffd85a 65%, #bb2143); }
+.memory-target { display: grid; min-height: 260px; margin: 18px 0; place-items: center; border: 4px solid #172033; border-radius: 24px; background: #f2efff; }
+.memory-target span { font-family: "Courier New", monospace; font-size: clamp(7rem, 30vw, 13rem); font-weight: bold; line-height: 1; text-decoration: none; }
+.memory-result-grid { margin-top: 24px; }
+
 @media (prefers-reduced-motion: reduce) {
   .challenge-lines-track { transition: none; }
 }
@@ -663,6 +677,13 @@ body[data-theme="rebel-royal"] .stage-button { color: #f8f1ff; background: #2415
 body[data-theme="rebel-royal"] .stage-button.completed { color: #dfffb5; background: #24402d; }
 body[data-theme="rebel-royal"] .stage-button.current { color: #180c24; background: linear-gradient(135deg, #b7ed67, #d4a83e); box-shadow: 0 0 0 3px #5f4a76; }
 body[data-theme="rebel-royal"] .stage-button.locked { color: #a99fb0; background: #17131d; }
+body[data-theme="rebel-royal"] .memory-level-button { color: #f8f1ff; background: #241531; }
+body[data-theme="rebel-royal"] .memory-level-button.selected { color: #180c24; background: linear-gradient(135deg, #b7ed67, #d4a83e); }
+body[data-theme="rebel-royal"] .memory-level-summary,
+body[data-theme="rebel-royal"] .memory-live-stats strong { color: #b7ed67; }
+body[data-theme="rebel-royal"] .memory-live-stats p { background: #38204b; }
+body[data-theme="rebel-royal"] .memory-countdown { border-color: #d4a83e; background: #17131d; }
+body[data-theme="rebel-royal"] .memory-target { border-color: #8753a3; background: #21132f; }
 body[data-theme="rebel-royal"] .settings-profile { border-color: #63516d; }
 body[data-theme="rebel-royal"] .settings-label { color: #cfc2d8; }
 body[data-theme="rebel-royal"] .reset-profile-progress-button { color: #ffd8e2; background: #61213a; }
@@ -793,6 +814,13 @@ body[data-theme="shark"] .stage-button { background: #dff8fc; }
 body[data-theme="shark"] .stage-button.completed { background: #b9edcf; }
 body[data-theme="shark"] .stage-button.current { color: white; background: linear-gradient(135deg, #087d9c, #0a526e); box-shadow: 0 0 0 3px #8bd8e5; }
 body[data-theme="shark"] .stage-button.locked { color: #607783; background: #b9cbd0; }
+body[data-theme="shark"] .memory-level-button { background: #dff8fc; }
+body[data-theme="shark"] .memory-level-button.selected { color: white; background: linear-gradient(135deg, #087d9c, #0a526e); }
+body[data-theme="shark"] .memory-level-summary,
+body[data-theme="shark"] .memory-live-stats strong { color: #08718e; }
+body[data-theme="shark"] .memory-live-stats p { background: #d5f2f6; }
+body[data-theme="shark"] .memory-countdown { border-color: #092f40; }
+body[data-theme="shark"] .memory-target { border-color: #0b6079; background: #c9edf3; }
 body[data-theme="shark"] .settings-profile { border-color: #79b7c5; }
 body[data-theme="shark"] .settings-label { color: #476673; }
 body[data-theme="shark"] .reset-profile-progress-button { color: #8f1734; background: #ffdce4; }
@@ -831,6 +859,8 @@ body[data-theme="shark"] .avatar-options input:checked + span { border-color: #0
   .challenge-options { grid-template-columns: 1fr; }
   .live-stats { grid-template-columns: 1fr 1fr; }
   .challenge-result-grid { grid-template-columns: 1fr 1fr; }
+  .memory-level-presets { grid-template-columns: repeat(3, 1fr); }
+  .memory-target { min-height: 210px; }
   .profile-gate { padding: 14px; }
   .profile-panel { padding: 24px; }
   .profile-list { grid-template-columns: 1fr; }
