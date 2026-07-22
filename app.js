@@ -344,9 +344,94 @@ function playMistakeSound() {
   }
 }
 
+function memorySoundContext() {
+  if (!playsMistakeSound) return null;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!mistakeAudioContext) mistakeAudioContext = new AudioContextClass();
+  if (mistakeAudioContext.state === "suspended") mistakeAudioContext.resume();
+  return mistakeAudioContext;
+}
+
+function playMemorySuccessSound(kind = "goal") {
+  try {
+    const audioContext = memorySoundContext();
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+    const notes = kind === "save" ? [523.25, 659.25, 783.99] : [392, 523.25, 659.25, 783.99];
+
+    notes.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const noteStart = now + (index * 0.085);
+      const noteEnd = noteStart + 0.32;
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.045, noteStart + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteEnd + 0.01);
+    });
+
+    const cheerDuration = 0.65;
+    const cheerBuffer = audioContext.createBuffer(1, Math.floor(audioContext.sampleRate * cheerDuration), audioContext.sampleRate);
+    const cheerData = cheerBuffer.getChannelData(0);
+    for (let index = 0; index < cheerData.length; index += 1) {
+      const progress = index / cheerData.length;
+      const envelope = Math.sin(Math.PI * progress) * (1 - (progress * 0.35));
+      cheerData[index] = ((Math.random() * 2) - 1) * envelope;
+    }
+    const cheer = audioContext.createBufferSource();
+    const cheerFilter = audioContext.createBiquadFilter();
+    const cheerGain = audioContext.createGain();
+    cheer.buffer = cheerBuffer;
+    cheerFilter.type = "bandpass";
+    cheerFilter.frequency.setValueAtTime(kind === "save" ? 1500 : 1200, now);
+    cheerFilter.Q.setValueAtTime(0.55, now);
+    cheerGain.gain.setValueAtTime(0.0001, now);
+    cheerGain.gain.exponentialRampToValueAtTime(0.028, now + 0.08);
+    cheerGain.gain.exponentialRampToValueAtTime(0.0001, now + cheerDuration);
+    cheer.connect(cheerFilter);
+    cheerFilter.connect(cheerGain);
+    cheerGain.connect(audioContext.destination);
+    cheer.start(now);
+  } catch {
+    // The game stays playable if synthesized audio is unavailable.
+  }
+}
+
+function playMemoryFailureSound() {
+  try {
+    const audioContext = memorySoundContext();
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+    [196, 146.83].forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const noteStart = now + (index * 0.2);
+      const noteEnd = noteStart + 0.38;
+      oscillator.type = "sawtooth";
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.62, noteEnd);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.028, noteStart + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteEnd + 0.01);
+    });
+  } catch {
+    // The game stays playable if synthesized audio is unavailable.
+  }
+}
+
 function drawMistakeSoundButton() {
   const isMuted = !playsMistakeSound;
-  const label = isMuted ? "Unmute mistake sounds" : "Mute mistake sounds";
+  const label = isMuted ? "Unmute sound effects" : "Mute sound effects";
   mistakeSoundButton.classList.toggle("muted", isMuted);
   mistakeSoundButton.setAttribute("aria-pressed", isMuted);
   mistakeSoundButton.setAttribute("aria-label", label);

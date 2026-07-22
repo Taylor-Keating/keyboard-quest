@@ -101,7 +101,7 @@
       </div>
     </section>
     <input id="profile-import-file" class="visually-hidden" type="file" accept=".json,application/json" tabindex="-1" />
-    <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute mistake sounds" title="Mute mistake sounds">
+    <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute sound effects" title="Mute sound effects">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path class="speaker-shape" d="M4 9v6h4l5 4V5L8 9H4Z"></path>
         <path class="sound-waves" d="M16 8.5c1.3 1.3 1.3 5.7 0 7M18.5 6c2.7 2.7 2.7 9.3 0 12"></path>
@@ -344,45 +344,51 @@
       <div id="memory-mode" hidden>
         <section id="memory-setup" class="challenge-card memory-card" aria-labelledby="memory-heading">
           <p class="eyebrow">Memory game</p>
-          <h2 id="memory-heading">Penalty survival</h2>
-          <p class="instructions">A letter appears with five seconds on the clock. Type it correctly to score and face a faster round.</p>
-          <div class="memory-level-presets" aria-label="Memory game letter levels">
-            <button class="memory-level-button selected" type="button" data-memory-level="1" aria-pressed="true">Level 1</button>
-            <button class="memory-level-button" type="button" data-memory-level="2" aria-pressed="false">Level 2</button>
-            <button class="memory-level-button" type="button" data-memory-level="3" aria-pressed="false">Level 3</button>
-            <button class="memory-level-button" type="button" data-memory-level="4" aria-pressed="false">Level 4</button>
-            <button class="memory-level-button" type="button" data-memory-level="5" aria-pressed="false">Level 5</button>
-            <button class="memory-level-button" type="button" data-memory-level="6" aria-pressed="false">Level 6</button>
+          <h2 id="memory-heading">Penalty shootout</h2>
+          <p class="instructions">Take each penalty by typing a letter, then play goalie and type another letter to save the rival’s shot. Every match uses the full A–Z keyboard.</p>
+          <div class="memory-level-presets" aria-label="Memory game difficulty">
+            <button class="memory-level-button selected" type="button" data-memory-difficulty="easy" aria-pressed="true">Easy</button>
+            <button class="memory-level-button" type="button" data-memory-difficulty="medium" aria-pressed="false">Medium</button>
+            <button class="memory-level-button" type="button" data-memory-difficulty="hard" aria-pressed="false">Hard</button>
+            <button class="memory-level-button" type="button" data-memory-difficulty="extreme" aria-pressed="false">Extreme</button>
           </div>
           <p id="memory-level-summary" class="memory-level-summary"></p>
-          <p class="pace-note">Survival rules: one wrong letter or an expired timer ends the run.</p>
-          <button id="start-memory-button" type="button">Start memory game</button>
+          <p class="pace-note">Your kicking timer gets faster after every round. Goalie timing starts at that difficulty’s fastest speed. A tie after five shots each goes to sudden death.</p>
+          <button id="start-memory-button" type="button" aria-keyshortcuts="Enter Space">Start memory game · Enter / Space</button>
         </section>
 
         <section id="memory-play" class="challenge-card memory-card" aria-labelledby="memory-play-heading" hidden>
-          <p class="eyebrow">Penalty survival</p>
+          <div id="memory-play-callout" class="memory-play-callout" aria-live="assertive" hidden></div>
+          <p class="eyebrow">Penalty shootout</p>
           <h2 id="memory-play-heading">Type before time runs out!</h2>
           <div class="memory-live-stats" aria-live="polite">
-            <p><strong id="memory-saves">0</strong><span>Goals</span></p>
-            <p><strong id="memory-score">0</strong><span>Points</span></p>
+            <p><strong id="memory-saves">0</strong><span>Your goals</span></p>
+            <p><strong id="memory-rival-goals">0</strong><span>Rival goals</span></p>
+            <p><strong id="memory-shot-status">Shot 1 of 5</strong><span>Round</span></p>
             <p><strong id="memory-time">5.0s</strong><span>Time</span></p>
           </div>
+          <div class="memory-shot-tracker" aria-label="Penalty shootout scorecard">
+            <div><strong>You</strong><span id="memory-player-shots" class="memory-shot-marks"></span></div>
+            <div><strong>Rival</strong><span id="memory-rival-shots" class="memory-shot-marks"></span></div>
+          </div>
+          <p class="memory-points"><strong id="memory-score">0</strong> points</p>
           <div class="memory-countdown" aria-hidden="true"><span id="memory-countdown-fill"></span></div>
           <p id="memory-target" class="memory-target" aria-label="Letter to type"><span id="memory-letter" class="current-letter">F</span></p>
           <p id="memory-feedback" class="feedback" aria-live="polite">Get ready…</p>
+          <button id="memory-ready-button" class="memory-ready-button" type="button" aria-keyshortcuts="Enter Space" hidden>Ready · Enter / Space</button>
           <div class="mission-actions">
             <button id="end-memory-button" type="button">End game</button>
           </div>
         </section>
 
         <section id="memory-results" class="challenge-card memory-card" aria-labelledby="memory-results-heading" hidden>
-          <p class="eyebrow">Run complete</p>
-          <h2 id="memory-results-heading">Penalty results</h2>
+          <p class="eyebrow">Full time</p>
+          <h2 id="memory-results-heading">Shootout results</h2>
           <p class="final-score"><strong id="memory-score-result">0</strong><span> points</span></p>
           <div class="challenge-result-grid memory-result-grid">
-            <p><strong id="memory-goals-result">0</strong><span>Goals</span></p>
-            <p><strong id="memory-level-result">1</strong><span>Level</span></p>
-            <p><strong id="memory-speed-result">5.0s</strong><span>Final timer</span></p>
+            <p><strong id="memory-goals-result">0–0</strong><span>Final score</span></p>
+            <p><strong id="memory-level-result">Easy</strong><span>Difficulty</span></p>
+            <p><strong id="memory-speed-result">4.0s</strong><span>Final kick timer</span></p>
             <p><strong id="memory-pace-result">0</strong><span>Keys/min</span></p>
           </div>
           <p id="memory-results-message" class="results-message"></p>
