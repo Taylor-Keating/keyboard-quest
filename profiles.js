@@ -17,6 +17,52 @@ const completedStagesBaseKey = "keyboard-quest-completed-stages";
 const fingerColorsBaseKey = "keyboard-quest-show-all-finger-colors";
 const mistakeSoundBaseKey = "keyboard-quest-mistake-sound";
 const themeBaseKey = "keyboard-quest-theme";
+const performanceGradeScale = [
+  { grade: "S", minimumAccuracy: 98 },
+  { grade: "A", minimumAccuracy: 95 },
+  { grade: "B", minimumAccuracy: 90 },
+  { grade: "C", minimumAccuracy: 80 },
+  { grade: "D", minimumAccuracy: 70 },
+  { grade: "F", minimumAccuracy: 0 },
+];
+const performanceGradeRanks = { F: 0, D: 1, C: 2, B: 3, A: 4, S: 5 };
+
+function performanceGrade(accuracy) {
+  const safeAccuracy = Number.isFinite(accuracy) ? Math.max(0, Math.min(100, accuracy)) : 0;
+  return performanceGradeScale.find((entry) => safeAccuracy >= entry.minimumAccuracy).grade;
+}
+
+function drawPerformanceGrade(element, grade) {
+  element.textContent = grade;
+  element.className = `grade-badge grade-${grade.toLowerCase()}`;
+}
+
+function safeProfileRecords(value) {
+  const safeRecords = { learn: {}, challenge: {}, memory: {} };
+  Object.keys(safeRecords).forEach((category) => {
+    const categoryValue = value?.[category];
+    if (!categoryValue || typeof categoryValue !== "object" || Array.isArray(categoryValue)) return;
+    Object.entries(categoryValue).slice(0, 100).forEach(([key, record]) => {
+      if (!record || typeof record !== "object" || Array.isArray(record)) return;
+      const safeKey = key.replace(/[^a-z0-9:_-]/gi, "").slice(0, 80);
+      if (!safeKey || ["__proto__", "constructor", "prototype"].includes(safeKey.toLowerCase())) return;
+      const grade = performanceGradeRanks[record.grade] === undefined ? "F" : record.grade;
+      safeRecords[category][safeKey] = {
+        label: typeof record.label === "string" ? record.label.slice(0, 80) : safeKey,
+        grade,
+        plays: Number.isFinite(record.plays) ? Math.max(0, Math.round(record.plays)) : 0,
+        score: Number.isFinite(record.score) ? Math.max(0, Math.round(record.score)) : 0,
+        accuracy: Number.isFinite(record.accuracy) ? Math.max(0, Math.min(100, Math.round(record.accuracy))) : 0,
+        keysPerMinute: Number.isFinite(record.keysPerMinute) ? Math.max(0, Math.round(record.keysPerMinute)) : 0,
+        fewestMistakes: Number.isFinite(record.fewestMistakes) ? Math.max(0, Math.round(record.fewestMistakes)) : null,
+        goals: Number.isFinite(record.goals) ? Math.max(0, Math.round(record.goals)) : 0,
+        wins: Number.isFinite(record.wins) ? Math.max(0, Math.round(record.wins)) : 0,
+        updatedAt: typeof record.updatedAt === "string" ? record.updatedAt.slice(0, 40) : null,
+      };
+    });
+  });
+  return safeRecords;
+}
 
 function readProfiles() {
   try {
@@ -50,11 +96,13 @@ function readProfileStats(profileId) {
     memoryWins: 0,
     bestMemoryScore: 0,
     bestMemoryGoals: 0,
+    records: { learn: {}, challenge: {}, memory: {} },
     lastPlayedAt: null,
   };
 
   try {
-    return { ...emptyStats, ...JSON.parse(localStorage.getItem(profileStorageKey(profileStatsBaseKey, profileId)) || "{}") };
+    const storedStats = JSON.parse(localStorage.getItem(profileStorageKey(profileStatsBaseKey, profileId)) || "{}");
+    return { ...emptyStats, ...storedStats, records: safeProfileRecords(storedStats.records) };
   } catch {
     return emptyStats;
   }
@@ -73,6 +121,25 @@ function recordProfileActivity(activity) {
     if (activity.won) stats.memoryWins += 1;
     stats.bestMemoryScore = Math.max(stats.bestMemoryScore, activity.score || 0);
     stats.bestMemoryGoals = Math.max(stats.bestMemoryGoals, activity.goals || 0);
+  }
+  if (["mission", "challenge", "memory"].includes(activity.type) && activity.segment) {
+    const category = activity.type === "mission" ? "learn" : activity.type;
+    const previousRecord = stats.records[category][activity.segment] || {};
+    const grade = performanceGradeRanks[activity.grade] === undefined ? performanceGrade(activity.accuracy) : activity.grade;
+    stats.records[category][activity.segment] = {
+      label: activity.segmentLabel || previousRecord.label || activity.segment,
+      grade: performanceGradeRanks[grade] > performanceGradeRanks[previousRecord.grade] ? grade : previousRecord.grade || grade,
+      plays: (previousRecord.plays || 0) + 1,
+      score: Math.max(previousRecord.score || 0, activity.score || 0),
+      accuracy: Math.max(previousRecord.accuracy || 0, activity.accuracy || 0),
+      keysPerMinute: Math.max(previousRecord.keysPerMinute || 0, activity.keysPerMinute || 0),
+      fewestMistakes: previousRecord.fewestMistakes === null || previousRecord.fewestMistakes === undefined
+        ? activity.mistakes || 0
+        : Math.min(previousRecord.fewestMistakes, activity.mistakes || 0),
+      goals: Math.max(previousRecord.goals || 0, activity.goals || 0),
+      wins: (previousRecord.wins || 0) + (activity.won ? 1 : 0),
+      updatedAt: new Date().toISOString(),
+    };
   }
   stats.totalMistakes += activity.mistakes || 0;
   stats.bestKeysPerMinute = Math.max(stats.bestKeysPerMinute, activity.keysPerMinute || 0);
@@ -112,6 +179,17 @@ const importProfileGateButton = document.querySelector("#import-profile-gate-but
 const profileImportFile = document.querySelector("#profile-import-file");
 const profileImportError = document.querySelector("#profile-import-error");
 const profileTransferStatus = document.querySelector("#profile-transfer-status");
+const viewRecordsButton = document.querySelector("#view-records-button");
+const recordsDialog = document.querySelector("#records-dialog");
+const recordsProfileName = document.querySelector("#records-profile-name");
+const learnRecordsList = document.querySelector("#learn-records-list");
+const challengeRecordsList = document.querySelector("#challenge-records-list");
+const memoryRecordsList = document.querySelector("#memory-records-list");
+const closeRecordsButton = document.querySelector("#close-records-button");
+const recordsBestPace = document.querySelector("#records-best-pace");
+const recordsBestChallenge = document.querySelector("#records-best-challenge");
+const recordsBestMemory = document.querySelector("#records-best-memory");
+const recordsMemoryWins = document.querySelector("#records-memory-wins");
 
 function profileObjectiveCount(profileId) {
   try {
@@ -160,6 +238,7 @@ function safeProfileStats(value) {
     if (Number.isFinite(value?.[field])) safeStats[field] = Math.max(0, Math.round(value[field]));
   });
   if (typeof value?.lastPlayedAt === "string") safeStats.lastPlayedAt = value.lastPlayedAt.slice(0, 40);
+  safeStats.records = safeProfileRecords(value?.records);
   return safeStats;
 }
 
@@ -313,6 +392,54 @@ function drawActiveProfile() {
   settingsProfileName.textContent = profile?.name || "No player selected";
 }
 
+function drawRecordList(container, records, category) {
+  container.replaceChildren();
+  const recordEntries = Object.values(records).sort((left, right) => left.label.localeCompare(right.label, undefined, { numeric: true }));
+  if (recordEntries.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "records-empty";
+    emptyMessage.textContent = "No records yet—complete this activity to set the first one.";
+    container.append(emptyMessage);
+    return;
+  }
+
+  recordEntries.forEach((record) => {
+    const row = document.createElement("article");
+    row.className = "record-row";
+    const grade = document.createElement("span");
+    grade.className = `grade-badge grade-${record.grade.toLowerCase()}`;
+    grade.textContent = record.grade;
+    grade.setAttribute("aria-label", `Grade ${record.grade}`);
+    const details = document.createElement("span");
+    details.className = "record-details";
+    const label = document.createElement("strong");
+    label.textContent = record.label;
+    const metrics = document.createElement("small");
+    const commonMetrics = `${record.score.toLocaleString()} points · ${record.accuracy}% accuracy · ${record.keysPerMinute} KPM`;
+    metrics.textContent = category === "memory"
+      ? `${commonMetrics} · ${record.goals} goals · ${record.wins} wins`
+      : `${commonMetrics} · ${record.plays} play${record.plays === 1 ? "" : "s"}`;
+    details.append(label, metrics);
+    row.append(grade, details);
+    container.append(row);
+  });
+}
+
+function drawProfileRecords() {
+  const profile = activeProfile();
+  if (!profile) return;
+  const stats = readProfileStats(profile.id);
+  const records = stats.records;
+  recordsProfileName.textContent = profile.name;
+  recordsBestPace.textContent = stats.bestKeysPerMinute.toLocaleString();
+  recordsBestChallenge.textContent = stats.bestChallengeScore.toLocaleString();
+  recordsBestMemory.textContent = stats.bestMemoryScore.toLocaleString();
+  recordsMemoryWins.textContent = stats.memoryWins.toLocaleString();
+  drawRecordList(learnRecordsList, records.learn, "learn");
+  drawRecordList(challengeRecordsList, records.challenge, "challenge");
+  drawRecordList(memoryRecordsList, records.memory, "memory");
+}
+
 function openProfileChooser(canClose = Boolean(activeProfileId)) {
   drawProfileList();
   profileGate.hidden = false;
@@ -381,6 +508,18 @@ function setProfileModalBackgroundInert(isInert) {
   document.querySelector(".app-shell").inert = isInert;
   document.querySelector("#mistake-sound-button").inert = isInert;
   document.querySelector("#settings-button").inert = isInert;
+}
+
+function setRecordsDialogOpen(isOpen) {
+  if (isOpen && !activeProfile()) return;
+  recordsDialog.hidden = !isOpen;
+  setProfileModalBackgroundInert(isOpen);
+  if (isOpen) {
+    drawProfileRecords();
+    closeRecordsButton.focus();
+  } else {
+    viewRecordsButton.focus();
+  }
 }
 
 function setResetDialogOpen(isOpen, shouldReturnFocus = false) {
@@ -492,6 +631,15 @@ createProfileForm.addEventListener("submit", (event) => {
 });
 
 switchProfileButton.addEventListener("click", () => openProfileChooser(true));
+viewRecordsButton.addEventListener("click", () => setRecordsDialogOpen(true));
+closeRecordsButton.addEventListener("click", () => setRecordsDialogOpen(false));
+recordsDialog.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    setRecordsDialogOpen(false);
+  }
+});
 exportProfileButton.addEventListener("click", exportActiveProfile);
 importProfileSettingsButton.addEventListener("click", chooseProfileImportFile);
 importProfileGateButton.addEventListener("click", chooseProfileImportFile);

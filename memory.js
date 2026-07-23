@@ -34,6 +34,7 @@ const memoryFeedbackElement = document.querySelector("#memory-feedback");
 const memoryReadyButton = document.querySelector("#memory-ready-button");
 const memoryPlayCalloutElement = document.querySelector("#memory-play-callout");
 const memoryScoreResultElement = document.querySelector("#memory-score-result");
+const memoryGradeResultElement = document.querySelector("#memory-grade-result");
 const memoryGoalsResultElement = document.querySelector("#memory-goals-result");
 const memoryLevelResultElement = document.querySelector("#memory-level-result");
 const memorySpeedResultElement = document.querySelector("#memory-speed-result");
@@ -430,10 +431,25 @@ function finishMemoryGame(reason = "ended") {
   const playerGoals = memoryGoalCount(memoryPlayerShots);
   const rivalGoals = memoryGoalCount(memoryRivalShots);
   const won = reason === "complete" && playerGoals > rivalGoals;
+  const totalResponses = memoryPlayerShots.length + memoryRivalShots.length;
+  const accuracy = totalResponses === 0 ? 0 : Math.round((memoryCorrectKeys / totalResponses) * 100);
+  const grade = performanceGrade(accuracy);
   const elapsedMinutes = Math.max(memoryActiveMilliseconds, 1000) / 60000;
   const keysPerMinute = Math.round(memoryCorrectKeys / elapsedMinutes);
-  recordProfileActivity({ type: "memory", mistakes: memoryMistakes, keysPerMinute, score: memoryScore, goals: playerGoals, won });
+  recordProfileActivity({
+    type: "memory",
+    segment: selectedMemoryDifficulty,
+    segmentLabel: MEMORY_DIFFICULTIES[selectedMemoryDifficulty].label,
+    mistakes: memoryMistakes,
+    accuracy,
+    keysPerMinute,
+    score: memoryScore,
+    goals: playerGoals,
+    won,
+    grade,
+  });
 
+  drawPerformanceGrade(memoryGradeResultElement, grade);
   memoryScoreResultElement.textContent = memoryScore.toLocaleString();
   memoryGoalsResultElement.textContent = `${playerGoals}–${rivalGoals}`;
   memoryLevelResultElement.textContent = MEMORY_DIFFICULTIES[selectedMemoryDifficulty].label;

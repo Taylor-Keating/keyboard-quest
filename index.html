@@ -100,6 +100,36 @@
         </div>
       </div>
     </section>
+    <section id="records-dialog" class="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="records-heading" hidden>
+      <div class="confirmation-card records-card">
+        <p class="eyebrow">Player records</p>
+        <h2 id="records-heading"><span id="records-profile-name"></span>’s high scores</h2>
+        <p class="records-grade-key"><strong>Ranks:</strong> S 98%+ · A 95%+ · B 90%+ · C 80%+ · D 70%+ · F below 70%</p>
+        <div class="records-overall-grid" aria-label="Lifetime records">
+          <p><strong id="records-best-pace">0</strong><span>Best KPM</span></p>
+          <p><strong id="records-best-challenge">0</strong><span>Challenge high</span></p>
+          <p><strong id="records-best-memory">0</strong><span>Memory high</span></p>
+          <p><strong id="records-memory-wins">0</strong><span>Memory wins</span></p>
+        </div>
+        <div class="records-sections">
+          <section aria-labelledby="learn-records-heading">
+            <h3 id="learn-records-heading">Learn stages</h3>
+            <div id="learn-records-list" class="records-list"></div>
+          </section>
+          <section aria-labelledby="challenge-records-heading">
+            <h3 id="challenge-records-heading">Challenge levels</h3>
+            <div id="challenge-records-list" class="records-list"></div>
+          </section>
+          <section aria-labelledby="memory-records-heading">
+            <h3 id="memory-records-heading">Memory difficulties</h3>
+            <div id="memory-records-list" class="records-list"></div>
+          </section>
+        </div>
+        <div class="confirmation-actions">
+          <button id="close-records-button" type="button">Close records</button>
+        </div>
+      </div>
+    </section>
     <input id="profile-import-file" class="visually-hidden" type="file" accept=".json,application/json" tabindex="-1" />
     <button id="mistake-sound-button" class="sound-toggle-button" type="button" aria-pressed="false" aria-label="Mute sound effects" title="Mute sound effects">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -143,6 +173,7 @@
         <p class="settings-label">Player</p>
         <h3 id="settings-profile-heading" class="active-profile-name" tabindex="-1"><span id="settings-profile-avatar" aria-hidden="true"></span><span id="settings-profile-name"></span></h3>
         <div class="settings-profile-actions">
+          <button id="view-records-button" type="button">View records</button>
           <button id="switch-profile-button" type="button">Switch player</button>
           <button id="edit-profile-button" type="button">Edit profile</button>
           <button id="reset-profile-progress-button" class="reset-profile-progress-button" type="button">Reset progress</button>
@@ -215,6 +246,7 @@
             <p id="feedback" class="feedback" aria-live="polite">Press the first letter when you are ready.</p>
             <section id="mission-results" class="mission-results" aria-labelledby="results-heading" hidden>
               <h4 id="results-heading">Stage results</h4>
+              <p class="performance-rank">Grade <strong id="mission-grade-result" class="grade-badge grade-s">S</strong> · <span id="mission-score-result">0</span> points</p>
               <div class="result-grid">
                 <p><strong id="accuracy-result">100%</strong><span>Accuracy</span></p>
                 <p><strong id="mistakes-result">0</strong><span>Mistakes</span></p>
@@ -326,6 +358,7 @@
           <p class="eyebrow">Challenge complete</p>
           <h2 id="challenge-results-heading">Your results</h2>
           <p class="final-score"><strong id="challenge-score-result">0</strong><span> points</span></p>
+          <p class="performance-rank">Grade <strong id="challenge-grade-result" class="grade-badge grade-s">S</strong></p>
           <p id="challenge-score-breakdown" class="score-breakdown"></p>
           <div class="challenge-result-grid">
             <p><strong id="challenge-accuracy-result">100%</strong><span>Accuracy</span></p>
@@ -385,6 +418,7 @@
           <p class="eyebrow">Full time</p>
           <h2 id="memory-results-heading">Shootout results</h2>
           <p class="final-score"><strong id="memory-score-result">0</strong><span> points</span></p>
+          <p class="performance-rank">Grade <strong id="memory-grade-result" class="grade-badge grade-s">S</strong></p>
           <div class="challenge-result-grid memory-result-grid">
             <p><strong id="memory-goals-result">0–0</strong><span>Final score</span></p>
             <p><strong id="memory-level-result">Easy</strong><span>Difficulty</span></p>

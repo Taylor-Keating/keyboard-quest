@@ -38,6 +38,8 @@ const missionResultsElement = document.querySelector("#mission-results");
 const accuracyResultElement = document.querySelector("#accuracy-result");
 const mistakesResultElement = document.querySelector("#mistakes-result");
 const paceResultElement = document.querySelector("#pace-result");
+const missionGradeResultElement = document.querySelector("#mission-grade-result");
+const missionScoreResultElement = document.querySelector("#mission-score-result");
 const resultsMessageElement = document.querySelector("#results-message");
 const learningCardElement = document.querySelector("#learning-card");
 const learningPhaseElement = document.querySelector("#learning-phase");
@@ -455,8 +457,22 @@ function drawMissionResults() {
   const accuracy = Math.round((correctKeys / attemptCount) * 100);
   const elapsedMinutes = Math.max(Date.now() - missionStartedAt, 1000) / 60000;
   const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
-  recordProfileActivity({ type: "mission", mistakes: mistakeCount, keysPerMinute });
+  const score = Math.max(0, (accuracy * 100) + (keysPerMinute * 10) - (mistakeCount * 50));
+  const grade = performanceGrade(accuracy);
+  const objectiveNumber = QUEST_LESSONS.indexOf(currentLesson) + 1;
+  recordProfileActivity({
+    type: "mission",
+    segment: stageId(currentLesson, missionIndex),
+    segmentLabel: `Objective ${objectiveNumber} · Stage ${missionIndex + 1} · ${currentMission().title}`,
+    mistakes: mistakeCount,
+    accuracy,
+    keysPerMinute,
+    score,
+    grade,
+  });
 
+  drawPerformanceGrade(missionGradeResultElement, grade);
+  missionScoreResultElement.textContent = score.toLocaleString();
   accuracyResultElement.textContent = `${accuracy}%`;
   mistakesResultElement.textContent = mistakeCount;
   paceResultElement.textContent = keysPerMinute;

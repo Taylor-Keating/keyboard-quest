@@ -66,6 +66,7 @@ const challengeMistakesElement = document.querySelector("#challenge-mistakes");
 const challengeStreakElement = document.querySelector("#challenge-streak");
 const challengeScoreElement = document.querySelector("#challenge-score");
 const challengeScoreResultElement = document.querySelector("#challenge-score-result");
+const challengeGradeResultElement = document.querySelector("#challenge-grade-result");
 const challengeScoreBreakdownElement = document.querySelector("#challenge-score-breakdown");
 const challengeAccuracyResultElement = document.querySelector("#challenge-accuracy-result");
 const challengeMistakesResultElement = document.querySelector("#challenge-mistakes-result");
@@ -385,8 +386,19 @@ function finishChallenge(shouldScroll = true) {
   const keysPerMinute = Math.round(correctKeys / elapsedMinutes);
   const paceBonus = Math.round(keysPerMinute * 10 * challengeLevelMultiplier * challengeOptionMultiplier);
   const finalScore = Math.max(0, challengeScore + paceBonus - challengePenaltyPoints);
-  recordProfileActivity({ type: "challenge", mistakes: challengeMistakes, keysPerMinute, score: finalScore });
+  const grade = performanceGrade(accuracy);
+  recordProfileActivity({
+    type: "challenge",
+    segment: `level-${challengeLevel}`,
+    segmentLabel: `Level ${challengeLevel}`,
+    mistakes: challengeMistakes,
+    accuracy,
+    keysPerMinute,
+    score: finalScore,
+    grade,
+  });
 
+  drawPerformanceGrade(challengeGradeResultElement, grade);
   challengeAccuracyResultElement.textContent = `${accuracy}%`;
   challengeMistakesResultElement.textContent = challengeMistakes;
   challengePaceResultElement.textContent = keysPerMinute;
